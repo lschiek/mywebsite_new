@@ -1,0 +1,309 @@
+<!DOCTYPE HTML>
+<html>
+
+    <head>
+	<meta charset="utf-8" />
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+	<meta name="description" content="I am a current MFA student at London Business School">
+	<meta name="author" content="Luca Schiek">
+	<meta name="generator" content="Hugo 0.75.1" />
+	<title>Stock Returns &middot; Luca Schiek</title>
+	<!-- Stylesheets -->
+	
+	<link rel="stylesheet" href="/css/main.css"/>
+	
+	
+
+	
+
+	<!-- Custom Fonts -->
+	<link href="/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+
+	
+	<link rel="shortcut icon" type="image/x-icon" href="/favicon.ico">
+	<link rel="icon" type="image/x-icon" href="/favicon.ico">
+	
+
+	<!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+	<!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+	<!--[if lt IE 9]>
+	<script src="js/ie/html5shiv.js"></script>
+	<script src="js/ie/html5shiv.jsrespond.min.js"></script>
+	<![endif]-->
+</head>
+
+    <body>
+
+    <!-- Wrapper -->
+        <div id="wrapper">
+
+            <!-- Header -->
+    <header id="header" class="alt">
+        <a href="/" class="logo"><strong>Luca Schiek</strong> <span>MFA @LBS</span></a>
+        <nav>
+            <a href="#menu">Menu</a>
+        </nav>
+    </header>
+
+<!-- Menu -->
+    <nav id="menu">
+        <ul class="links">
+            
+                <li><a href="/">Home</a></li>
+            
+                <li><a href="/blogs">Blogs</a></li>
+            
+
+        </ul>
+        <ul class="actions vertical">
+            
+                <li><a href="/blogs" class="button special fit">Get Started</a></li>
+            
+            
+                <li><a href="/" class="button fit">Log In</a></li>
+            
+        </ul>
+    </nav>
+
+        <!-- Main -->
+            <div id="main" class="alt">
+
+                
+                    <section id="one">
+                        <div class="inner">
+                            <header class="major">
+                                <h1>Stock Returns</h1>
+                            </header>
+                            
+                                <span class="image main"><img src="/img/projects/stockmarket.jpg" alt="" /></span>
+                            
+                            
+
+
+<p>We will use the <code>tidyquant</code> package to download historical data of stock prices, calculate returns, and examine the distribution of returns.</p>
+<p>The file <code>nyse.csv</code> contains 508 stocks listed on the NYSE, their ticker <code>symbol</code>, <code>name</code>, the IPO (Initial Public Offering) year, and the sector and industry the company is in.</p>
+<pre class="r"><code>nyse &lt;- read_csv(here::here(&quot;data&quot;,&quot;nyse.csv&quot;))</code></pre>
+<p>First, we want to get have a look at the industries the companies are operating in. Therefore, we create bar plot that shows as how many companies are in each industry.</p>
+<pre class="r"><code># YOUR CODE GOES HERE
+sector_stocks &lt;- nyse %&gt;% 
+  group_by(sector)%&gt;% 
+  count(sort = TRUE)
+ggplot(sector_stocks, aes(x = reorder(sector, -n), y = n)) + 
+  geom_col() +
+  theme(axis.text.x = element_text(size = 14, angle = 60, hjust = 1, margin=margin(15,0,0,0)),
+        axis.text.y = element_text(size = 14, margin = margin(0,15,0,0)),
+        plot.title = element_text(size = 24, face = &quot;bold&quot;, margin = margin(0,0,30,0)), 
+        axis.title.x = element_blank(),
+        axis.title.y = element_text(size=18, face=&quot;bold&quot;, margin=margin(0,20,0,0))) +
+  labs(x = &quot;NONE&quot;, 
+       y = &quot;# of companies&quot;, 
+       title = &quot;Most of the companies are operating in the finance industry&quot;)</code></pre>
+<p><img src="/projects/stockreturns_files/figure-html/companies_per_sector-1.png" width="648" style="display: block; margin: auto;" /></p>
+<p>As the above chart suggests, the finance industry is the biggest industry in terms of numbers of companies operating in it. Transportation and Consumer Durables are with 11 and 8 companies, respectively, the at least represented industries.</p>
+<p>Now, let’s choose the <a href="https://en.wikipedia.org/wiki/Dow_Jones_Industrial_Average">Dow Jones Industrial Aveareg (DJIA)</a> stocks and their ticker symbols and download some data. Besides the thirty stocks that make up the DJIA, we will also add <code>SPY</code> which is an SP500 ETF (<a href="https://www.investopedia.com/terms/e/etf.asp">Exchange Traded Fund</a>).</p>
+<pre class="r"><code>djia_url &lt;- &quot;https://en.wikipedia.org/wiki/Dow_Jones_Industrial_Average&quot;
+
+#get tables that exist on URL
+tables &lt;- djia_url %&gt;% 
+  read_html() %&gt;% 
+  html_nodes(css=&quot;table&quot;)
+
+
+# parse HTML tables into a dataframe called djia. 
+# Use purr::map() to create a list of all tables in URL
+djia &lt;- map(tables, . %&gt;% 
+               html_table(fill=TRUE)%&gt;% 
+               clean_names())
+
+
+# constituents
+table1 &lt;- djia[[2]] %&gt;% # the second table on the page contains the ticker symbols
+  mutate(date_added = ymd(date_added),
+         
+         # if a stock is listed on NYSE, its symbol is, e.g., NYSE: MMM
+         # We will get prices from yahoo finance which requires just the ticker
+         
+         # if symbol contains &quot;NYSE*&quot;, the * being a wildcard
+         # then we jsut drop the first 6 characters in that string
+         ticker = ifelse(str_detect(symbol, &quot;NYSE*&quot;),
+                          str_sub(symbol,7,11),
+                          symbol)
+         )
+
+# we need a vector of strings with just the 30 tickers + SPY
+tickers &lt;- table1 %&gt;% 
+  select(ticker) %&gt;% 
+  pull() %&gt;% # pull() gets them as a sting of characters
+  c(&quot;SPY&quot;) # and lets us add SPY, the SP500 ETF</code></pre>
+<pre class="r"><code># Notice the cache=TRUE argument in the chunk options. Because getting data is time consuming, # cache=TRUE means that once it downloads data, the chunk will not run again next time you knit your Rmd
+
+myStocks &lt;- tickers %&gt;% 
+  tq_get(get  = &quot;stock.prices&quot;,
+         from = &quot;2000-01-01&quot;,
+         to   = &quot;2020-08-31&quot;) %&gt;%
+  group_by(symbol) 
+
+glimpse(myStocks) # examine the structure of the resulting data frame</code></pre>
+<pre><code>## Rows: 153,121
+## Columns: 8
+## Groups: symbol [31]
+## $ symbol   &lt;chr&gt; &quot;MMM&quot;, &quot;MMM&quot;, &quot;MMM&quot;, &quot;MMM&quot;, &quot;MMM&quot;, &quot;MMM&quot;, &quot;MMM&quot;, &quot;MMM&quot;, &quot;MMM…
+## $ date     &lt;date&gt; 2000-01-03, 2000-01-04, 2000-01-05, 2000-01-06, 2000-01-07,…
+## $ open     &lt;dbl&gt; 48.0, 46.4, 45.6, 47.2, 50.6, 50.2, 50.4, 51.0, 50.7, 50.4, …
+## $ high     &lt;dbl&gt; 48.2, 47.4, 48.1, 51.2, 51.9, 51.8, 51.2, 51.8, 50.9, 50.5, …
+## $ low      &lt;dbl&gt; 47.0, 45.3, 45.6, 47.2, 50.0, 50.0, 50.2, 50.4, 50.2, 49.5, …
+## $ close    &lt;dbl&gt; 47.2, 45.3, 46.6, 50.4, 51.4, 51.1, 50.2, 50.4, 50.4, 49.7, …
+## $ volume   &lt;dbl&gt; 2173400, 2713800, 3699400, 5975800, 4101200, 3863800, 235760…
+## $ adjusted &lt;dbl&gt; 28.1, 26.9, 27.7, 30.0, 30.5, 30.4, 29.9, 30.0, 30.0, 29.5, …</code></pre>
+<p>Financial performance analysis depend on returns; If I buy a stock today for 100 and I sell it tomorrow for 101.75, my one-day return, assuming no transaction costs, is 1.75%. So given the adjusted closing prices, our first step is to calculate daily and monthly returns.</p>
+<pre class="r"><code>#calculate daily returns
+myStocks_returns_daily &lt;- myStocks %&gt;%
+  tq_transmute(select     = adjusted, 
+               mutate_fun = periodReturn, 
+               period     = &quot;daily&quot;, 
+               type       = &quot;log&quot;,
+               col_rename = &quot;daily_returns&quot;,
+               cols = c(nested.col))  
+
+#calculate monthly  returns
+myStocks_returns_monthly &lt;- myStocks %&gt;%
+  tq_transmute(select     = adjusted, 
+               mutate_fun = periodReturn, 
+               period     = &quot;monthly&quot;, 
+               type       = &quot;arithmetic&quot;,
+               col_rename = &quot;monthly_returns&quot;,
+               cols = c(nested.col)) 
+
+#calculate yearly returns
+myStocks_returns_annual &lt;- myStocks %&gt;%
+  group_by(symbol) %&gt;%
+  tq_transmute(select     = adjusted, 
+               mutate_fun = periodReturn, 
+               period     = &quot;yearly&quot;, 
+               type       = &quot;arithmetic&quot;,
+               col_rename = &quot;yearly_returns&quot;,
+               cols = c(nested.col))</code></pre>
+<p>To get a better idea of the characteristics and returns pf the stocks and <code>SPY</code>, we will now summarise monthly returns beginning 01. January 2007 and look at the <em>Minimum, Maximum, Median, Mean and Standard Deviation</em> of the returns.</p>
+<pre class="r"><code># Summarise Statistics
+monthly_summarise &lt;- myStocks_returns_monthly %&gt;% 
+  filter(date &gt;= 2017-01-01) %&gt;% 
+  group_by(symbol) %&gt;% 
+  summarise(min_return = min(monthly_returns), #Minimum
+            max_return = max(monthly_returns), #Maximum
+            med_return = median(monthly_returns), #Median
+            mean_return = mean(monthly_returns), #Mean
+            sd_return = sd(monthly_returns)) #Standard Deviation
+  
+print(monthly_summarise)</code></pre>
+<pre><code>## # A tibble: 31 x 6
+##    symbol min_return max_return med_return mean_return sd_return
+##    &lt;chr&gt;       &lt;dbl&gt;      &lt;dbl&gt;      &lt;dbl&gt;       &lt;dbl&gt;     &lt;dbl&gt;
+##  1 AAPL       -0.577      0.454     0.0352     0.0275     0.116 
+##  2 AMGN       -0.170      0.328     0.0104     0.00916    0.0738
+##  3 AXP        -0.279      0.875     0.0102     0.00818    0.0918
+##  4 BA         -0.458      0.257     0.0179     0.0120     0.0887
+##  5 CAT        -0.353      0.350     0.0133     0.0143     0.0908
+##  6 CRM        -0.360      0.403     0.0205     0.0276     0.113 
+##  7 CSCO       -0.367      0.389     0.0125     0.00495    0.0971
+##  8 CVX        -0.224      0.270     0.0122     0.00852    0.0630
+##  9 DIS        -0.268      0.234     0.0107     0.00980    0.0725
+## 10 DOW        -0.276      0.255     0.0456     0.00898    0.128 
+## # … with 21 more rows</code></pre>
+<p>By plotting a density plot using <code>geom_density()</code>, we can evalute the distribution of the returns for each of the stocks.</p>
+<pre class="r"><code># Density Plot per stock
+ ggplot(myStocks_returns_monthly,aes(x = monthly_returns)) + geom_density()+facet_wrap(~symbol) +
+  theme(axis.text.x = element_text(size = 8),
+        axis.text.y = element_text(size = 8),
+        plot.title = element_text(size = 24, face = &quot;bold&quot;, margin = margin(0,0,30,0)), 
+        axis.title.x = element_text(size=18, face=&quot;bold&quot;, margin=margin(20,0,0,0)),
+        axis.title.y = element_text(size=18, face=&quot;bold&quot;, margin=margin(0,20,0,0))) +
+  labs(x=&quot;Density&quot;, 
+       y=&quot;Average monthly return&quot;, 
+       title=&quot;Distribution of return&quot;)</code></pre>
+<p><img src="/projects/stockreturns_files/figure-html/density_monthly_returns-1.png" width="648" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>#Second option       
+ggplot(myStocks_returns_monthly, aes(monthly_returns, ..count..)) + 
+  geom_histogram(aes(colour=symbol, fill=symbol), binwidth=.2) +
+  geom_freqpoly(colour=&quot;black&quot;, binwidth=.2) +
+  facet_wrap(~symbol)</code></pre>
+<p><img src="/projects/stockreturns_files/figure-html/density_monthly_returns-2.png" width="648" style="display: block; margin: auto;" /></p>
+<p>As one would expect, we can see that returns for individual stocks follow an imperfect normal distribution. Compared to stock prices, which are best described using a lognormal distribution, stock returns can be described by the normal distribution given that they can be both positive and negative, and thus distribute around their median.</p>
+<p>From empirical research we know that stock returns are normally distributed, but they tend to have fatter tails, or in statistical terminology, higher/excess kurtosis. For investors, excess kurtosis implies that the they will experience occasional extreme returns (either positive or negative), more extreme than the usual plus or minus three standard deviations from the mean that is predicted by the normal distribution of returns.</p>
+<p>Keeping this in mind, we can clearly see how the average single stock seems riskier (i.e. having a higher probability of extreme positive or negative returns) compared to the SP500 ETF (<code>SPY</code>). Companies such as Cisco Systems, Home Depot, Johnson &amp; Johnson and Merck &amp; Co. represent examples of stock returns that for the time period in consideration tend were highly volatile. However, there are some other stocks that performed just as good if not better than the SP500, such as Walmart, Microsoft or Procter &amp; Gamble. We can deduct this by noticing how most returns are concentrated around the median, making extreme outcomes relatively rare.</p>
+<p>As a final consideration, we would like to point to the frequent small dips on the left-hand side of most singular stock returns. These observations represent particularly low monthly returns. An explanation for this phenomenon can be found in the phycology and nature of financial markets: When bad news hit the market, market reaction is usually quicker and of larger magnitude than when good news spreads.</p>
+<p>As we have already seen, all singular stocks have different characteristics both in terms of returns and risks. From an investor view point, it is rational to consider both risk and return in order to make an investment decision. Harry F. Markowitz with his <a href="https://www.math.ust.hk/~maykwok/courses/ma362/07F/markowitz_JF.pdf">Modern Portfolio Theory</a> and later William F. Sharpe (1964), John Lintner (1965) and Jan Mossin (1966) with the <a href="https://www.investopedia.com/terms/c/capm.asp">Capital Asset Pricing Model</a> have laid the foundation the understanding of risk and return. For now, we will have a look at a risk-/return scatter plot for all our stocks.</p>
+<pre class="r"><code># Risk-/Return Scatter Plot
+library(ggrepel)
+ggplot(monthly_summarise, aes(x = sd_return, 
+                              y = mean_return)) +
+  geom_text_repel(aes(label = symbol), 
+                  size = 4) +
+  geom_point(size = 2) +
+  theme(axis.text.x = element_text(size = 14, margin=margin(15,0,0,0)),
+        axis.text.y = element_text(size = 14, margin = margin(0,15,0,0)),
+        plot.title = element_text(size = 24, face = &quot;bold&quot;, margin = margin(0,0,30,0)), 
+        axis.title.x = element_text(size = 18, face = &quot;bold&quot;, margin = margin(20,0,0,0)),
+        axis.title.y = element_text(size = 18, face = &quot;bold&quot;, margin = margin(0,20,0,0))) +
+  labs(x=&quot;Standard deviation&quot;, 
+       y=&quot;Expected monthly return&quot;, 
+       title=&quot;The data does not support the Efficient Market Hypothesis&quot;)</code></pre>
+<p><img src="/projects/stockreturns_files/figure-html/risk_return_plot-1.png" width="648" style="display: block; margin: auto;" /></p>
+<p>According to the efficient-market hypothesis, all the dots in our sample should theoretically line up on straight line (linear relationship between risk and return) – otherwise we would have an arbitrage opportunity. In this particular occasion, the efficient-market hypothesis’ performance is particularly poor. Indeed, there are some stocks that clearly outperformed others without necessarily being riskier. Let us look for example at Cisco Systems and Nike. Cisco averaged a monthly return of zero with a standard deviation of returns of almost 10%. Nike, on the other side, delivered a 2% monthly returns with its riskiness being only around 7%. Clearly, for the time period considered, Nike was the better investment. There are also several risk-adjusted return measures which do not only consider absolute return but also risk. One of the most popular measure in financial literacy is the Sharpe Ratio. The Sharpe Ratio in its simple form is calculated as return divided risk. This measure gives insights to how much return an investor gets for each unit of risk. From a financial standpoint, stocks with a low Sharpe Ratio are less favorable than stocks with a high Sharpe Ratio.</p>
+
+                        </div>
+                    </section>
+            <!-- Disqus Inject -->
+                
+            </div>
+            
+        <!-- Footer -->
+            
+                <!-- Footer -->
+    <footer id="footer">
+        <div class="inner">
+            <ul class="icons">
+                
+                    <li><a href="" class="icon alt " target="_blank"><span class="label"></span></a></li>
+                
+                    <li><a href="" class="icon alt " target="_blank"><span class="label"></span></a></li>
+                
+                    <li><a href="https://www.instagram.com/luca_shk/" class="icon alt fa-instagram" target="_blank"><span class="label">Instagram</span></a></li>
+                
+                    <li><a href="https://github.com/lschiek" class="icon alt fa-github" target="_blank"><span class="label">GitHub</span></a></li>
+                
+                    <li><a href="https://www.linkedin.com/in/luca-schiek-592961159/m" class="icon alt fa-linkedin" target="_blank"><span class="label">LinkedIn</span></a></li>
+                
+            </ul>
+            <ul class="copyright">
+                <li>&copy; Luca Schiek - London Business School</li>
+                
+                <li>Design:  <a href="https://www.html5up.net">HTML5 UP</a></li>
+                
+            </ul>
+        </div>
+    </footer>
+
+            
+        </div>
+
+    <!-- Scripts -->
+        <!-- Scripts -->
+    <!-- jQuery -->
+    <script src="/js/jquery.min.js"></script>
+    <script src="/js/jquery.scrolly.min.js"></script>
+    <script src="/js/jquery.scrollex.min.js"></script>
+    <script src="/js/skel.min.js"></script>
+    <script src="/js/util.js"></script>
+
+    
+
+    <!-- Main JS -->
+    <script src="/js/main.js"></script>
+
+    
+
+    
+
+    </body>
+</html>

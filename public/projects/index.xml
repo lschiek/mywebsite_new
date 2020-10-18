@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Projects on Luca Schiek</title>
+    <link>/projects/</link>
+    <description>Recent content in Projects on Luca Schiek</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Tue, 31 Oct 2017 22:42:51 -0500</lastBuildDate><atom:link href="/projects/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>About me</title>
+      <link>/projects/aboutme/</link>
+      <pubDate>Tue, 31 Oct 2017 22:42:51 -0500</pubDate>
+      
+      <guid>/projects/aboutme/</guid>
+      <description>… where it all started
+Dear Visitor,
+my name is Luca Schiek and I am the creator of this page. I am 22 years old and was born in Krefeld, Germany. During my high school years at the Gymnasium am Moltkeplatz, I socially engaged in the student-run humanitarian initiative Moltke für Afrika e.V. and played competitive tennis @HTC Blau-Weiß Krefeld.
+Motivation
+ “Talent wins games, but teamwork and intelligence win championships” - Michael Jordan</description>
+    </item>
+    
+    <item>
+      <title>Stock Returns</title>
+      <link>/projects/stockreturns/</link>
+      <pubDate>Tue, 31 Oct 2017 22:26:13 -0500</pubDate>
+      
+      <guid>/projects/stockreturns/</guid>
+      <description>We will use the tidyquant package to download historical data of stock prices, calculate returns, and examine the distribution of returns.
+The file nyse.csv contains 508 stocks listed on the NYSE, their ticker symbol, name, the IPO (Initial Public Offering) year, and the sector and industry the company is in.
+nyse &amp;lt;- read_csv(here::here(&amp;quot;data&amp;quot;,&amp;quot;nyse.csv&amp;quot;)) First, we want to get have a look at the industries the companies are operating in. Therefore, we create bar plot that shows as how many companies are in each industry.</description>
+    </item>
+    
+  </channel>
+</rss>
