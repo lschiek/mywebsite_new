@@ -91,13 +91,13 @@ disqusShortname = ""
       title = "About me"
       subtitle = "My Personal Journey"
       image = "aboutme.jpg"
-      url = "blogs/aboutme"
+      url = "projects/aboutme"
 
     [[params.tiles.showcase]]
       title = "Stock Analysis"
       subtitle = "Performance Analysis of DJIA"
       image = "buffet.jpg"
-      url = "blogs/stockreturns"
+      url = "projects/stockreturns"
 
     [[params.tiles.showcase]]
       title = "Magna"
