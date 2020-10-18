@@ -32,7 +32,7 @@ nyse &amp;lt;- read_csv(here::here(&amp;quot;data&amp;quot;,&amp;quot;nyse.csv&a
     </item>
     
     <item>
-      <title>Ipsum</title>
+      <title>GDP Decomposition</title>
       <link>/projects/gdpdecomp/</link>
       <pubDate>Tue, 31 Oct 2017 21:28:43 -0500</pubDate>
       
