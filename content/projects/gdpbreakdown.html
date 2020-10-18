@@ -125,22 +125,8 @@ gdp_diff&lt;-graph2_data1 %&gt;%
 
 gdp_diff&lt;-gdp_diff %&gt;% 
   mutate(GDP_difference_percent=scales::percent(GDP_Difference))
-print(subset(gdp_diff,select=-c(GDP_Difference)))</code></pre>
-<pre><code>## # A tibble: 144 x 5
-##    CountryID Country Year  ShortName      GDP_difference_percent
-##        &lt;dbl&gt; &lt;chr&gt;   &lt;chr&gt; &lt;chr&gt;          &lt;chr&gt;                 
-##  1       276 Germany 1970  GDP_difference 3.0302737%            
-##  2       276 Germany 1971  GDP_difference 3.5396552%            
-##  3       276 Germany 1972  GDP_difference 3.5566903%            
-##  4       276 Germany 1973  GDP_difference 2.9213477%            
-##  5       276 Germany 1974  GDP_difference 1.7805618%            
-##  6       276 Germany 1975  GDP_difference 2.9271732%            
-##  7       276 Germany 1976  GDP_difference 2.8330886%            
-##  8       276 Germany 1977  GDP_difference 2.7650744%            
-##  9       276 Germany 1978  GDP_difference 3.0486893%            
-## 10       276 Germany 1979  GDP_difference 3.4416053%            
-## # … with 134 more rows</code></pre>
-<pre class="r"><code># select only the required data for comparison
+
+# select only the required data for comparison
 indicator_list3 &lt;- c(&quot;GovExp_percent&quot;, &quot;Net_percent&quot;,&quot;GrossCap_percent&quot;,&quot;HouseExp_percent&quot;)
 
 #make the dataframe into longer version
@@ -179,13 +165,6 @@ theme(axis.text.x = element_text(size = 8, margin=margin(0,15,0,0)),
       legend.text = element_text(size = 8))+
   NULL</code></pre>
 <p><img src="/projects/gdpbreakdown_files/figure-html/gdp2_rep-1.png" width="648" style="display: block; margin: auto;" /></p>
-<blockquote>
-<p>What is the % difference between what you calculated as GDP and the GDP figure included in the dataframe?</p>
-</blockquote>
-<p>As shown in the above table, the percentage difference is quite small and mostly less than 5%.</p>
-<blockquote>
-<p>What is this last chart telling you? Can you explain in a couple of paragraphs the different dynamic among these three countries?</p>
-</blockquote>
 <p>The last chart compares the GDP breakdown structure of its four components. In all of the four countries, household expenditure contributes the most part with around 60-70% of the GDP composed of the household expenditure, while the net export made up of the least past in the total GDP number, contributing to less than 10% of the total GDP.</p>
 <p>Looking closely into each country, there are different dynamics as well. For Germany, the contribution proportion of household expenditure is the lowest among the three countries, and it demonstrated a declining trend over the recent three decades. It is also the only country among the three that had constant trend of declining proportion of gross capital formation in these three countries, and the percentage number declined by about 10% in the past 50 years. On the other hand, Germany is also the only country that had a increase in the proportion of the net exports. While the other two countries both have negative contribution of net export, around 8% of the current GDP in German in made up of the net export. This is mainly because of its strong manufacturing industry that supported the export data.</p>
 <p>In India, the household expenditure started as more than 70% of the GDP in 1970, and the number has continuously decreased to about 55% in 2016. On the other hand, India’s gross capital formation greatly increased over the years to account for 35% of the total GDP in 2016, which is the highest percentage in the three countries. This shows that India is quickly accumulating capital over the years. India also had the lowest government expenditure, constantly contributing to around 10% of the total GDP.</p>

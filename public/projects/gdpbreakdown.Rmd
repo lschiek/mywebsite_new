@@ -171,7 +171,6 @@ gdp_diff<-graph2_data1 %>%
 
 gdp_diff<-gdp_diff %>% 
   mutate(GDP_difference_percent=scales::percent(GDP_Difference))
-print(subset(gdp_diff,select=-c(GDP_Difference)))
 
 # select only the required data for comparison
 indicator_list3 <- c("GovExp_percent", "Net_percent","GrossCap_percent","HouseExp_percent")
@@ -213,13 +212,7 @@ theme(axis.text.x = element_text(size = 8, margin=margin(0,15,0,0)),
   NULL
 ```
 
-> What is the % difference between what you calculated as GDP and the GDP figure included in the dataframe?
 
-As shown in the above table, the percentage difference is quite small and mostly less than 5%.
-
-
-> What is this last chart telling you? Can you explain in a couple of paragraphs the different dynamic among these three countries? 
- 
 The last chart compares the GDP breakdown structure of its four components. In all of the four countries, household expenditure contributes the most part with around 60-70% of the GDP composed of the household expenditure, while the net export made up of the least past in the total GDP number, contributing to less than 10% of the total GDP.
 
 Looking closely into each country, there are different dynamics as well. For Germany, the contribution proportion of household expenditure is the lowest among the three countries, and it demonstrated a declining trend over the recent three decades. It is also the only country among the three that had constant trend of declining proportion of gross capital formation in these three countries, and the percentage number declined by about 10% in the past 50 years. On the other hand, Germany is also the only country that had a increase in the proportion of the net exports. While the other two countries both have negative contribution of net export, around 8% of the current GDP in German in made up of the net export. This is mainly because of its strong manufacturing industry that supported the export data.
