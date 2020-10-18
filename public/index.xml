@@ -60,19 +60,19 @@ nyse &amp;lt;- read_csv(here::here(&amp;quot;data&amp;quot;,&amp;quot;nyse.csv&a
     
     <item>
       <title>Ipsum</title>
-      <link>/blogs/ipsum/</link>
+      <link>/blogs/gdpdecomp/</link>
       <pubDate>Tue, 31 Oct 2017 21:28:43 -0500</pubDate>
       
-      <guid>/blogs/ipsum/</guid>
+      <guid>/blogs/gdpdecomp/</guid>
       <description>Nullam et orci eu lorem consequat tincidunt vivamus et sagittis magna sed nunc rhoncus condimentum sem. In efficitur ligula tate urna. Maecenas massa sed magna lacinia magna pellentesque lorem ipsum dolor. Nullam et orci eu lorem consequat tincidunt. Vivamus et sagittis tempus.</description>
     </item>
     
     <item>
       <title>Ipsum</title>
-      <link>/projects/ipsum/</link>
+      <link>/projects/gdpdecomp/</link>
       <pubDate>Tue, 31 Oct 2017 21:28:43 -0500</pubDate>
       
-      <guid>/projects/ipsum/</guid>
+      <guid>/projects/gdpdecomp/</guid>
       <description>GDP components over time and among countries
 At the risk of oversimplifying things, the main components of gross domestic product, GDP are Personal Consumption (C), business investment (I), government spending (G) and net exports. You can read more about GDP and the different approaches in calculating at the Wikipedia GDP page.
 The GDP data we will look at is from the United Nations’ National Accounts Main Aggregates Database, which contains estimates of total GDP and its components for all countries from 1970 to today.</description>

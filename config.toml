@@ -109,7 +109,7 @@ googleAnalytics = ""
       title = "Ipsum"
       subtitle = "Nisl Sed Aliquam"
       image = "pic04.jpg"
-      url = "blogs/ipsum"
+      url = "projects/gdpdecomp"
 
    # [[params.tiles.showcase]]
     #  title = "Consequat"
