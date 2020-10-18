@@ -8,6 +8,15 @@
     <language>en-us</language>
     <lastBuildDate>Tue, 31 Oct 2017 22:42:51 -0500</lastBuildDate><atom:link href="/index.xml" rel="self" type="application/rss+xml" />
     <item>
+      <title>About Me</title>
+      <link>/blogs/aboutme/</link>
+      <pubDate>Tue, 31 Oct 2017 22:42:51 -0500</pubDate>
+      
+      <guid>/blogs/aboutme/</guid>
+      <description></description>
+    </item>
+    
+    <item>
       <title>About me</title>
       <link>/projects/aboutme/</link>
       <pubDate>Tue, 31 Oct 2017 22:42:51 -0500</pubDate>
@@ -21,11 +30,11 @@ Motivation
     </item>
     
     <item>
-      <title>Aliquam</title>
-      <link>/blogs/aliquam/</link>
-      <pubDate>Tue, 31 Oct 2017 22:42:51 -0500</pubDate>
+      <title>Stock Analysis</title>
+      <link>/blogs/stockreturns/</link>
+      <pubDate>Tue, 31 Oct 2017 22:26:13 -0500</pubDate>
       
-      <guid>/blogs/aliquam/</guid>
+      <guid>/blogs/stockreturns/</guid>
       <description></description>
     </item>
     
@@ -38,15 +47,6 @@ Motivation
       <description>We will use the tidyquant package to download historical data of stock prices, calculate returns, and examine the distribution of returns.
 The file nyse.csv contains 508 stocks listed on the NYSE, their ticker symbol, name, the IPO (Initial Public Offering) year, and the sector and industry the company is in.
 nyse &amp;lt;- read_csv(here::here(&amp;quot;data&amp;quot;,&amp;quot;nyse.csv&amp;quot;)) First, we want to get have a look at the industries the companies are operating in. Therefore, we create bar plot that shows as how many companies are in each industry.</description>
-    </item>
-    
-    <item>
-      <title>Tempus</title>
-      <link>/blogs/tempus/</link>
-      <pubDate>Tue, 31 Oct 2017 22:26:13 -0500</pubDate>
-      
-      <guid>/blogs/tempus/</guid>
-      <description></description>
     </item>
     
     <item>
