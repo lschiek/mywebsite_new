@@ -91,11 +91,11 @@ sector_stocks &lt;- nyse %&gt;%
   count(sort = TRUE)
 ggplot(sector_stocks, aes(x = reorder(sector, -n), y = n)) + 
   geom_col() +
-  theme(axis.text.x = element_text(size = 14, angle = 60, hjust = 1, margin=margin(15,0,0,0)),
-        axis.text.y = element_text(size = 14, margin = margin(0,15,0,0)),
-        plot.title = element_text(size = 24, face = &quot;bold&quot;, margin = margin(0,0,30,0)), 
+  theme(axis.text.x = element_text(size = 10, angle = 60, hjust = 1, margin=margin(15,0,0,0)),
+        axis.text.y = element_text(size = 10, margin = margin(0,15,0,0)),
+        plot.title = element_text(size = 12, face = &quot;bold&quot;, margin = margin(0,0,20,0)), 
         axis.title.x = element_blank(),
-        axis.title.y = element_text(size=18, face=&quot;bold&quot;, margin=margin(0,20,0,0))) +
+        axis.title.y = element_text(size=10, face=&quot;bold&quot;, margin=margin(0,20,0,0))) +
   labs(x = &quot;NONE&quot;, 
        y = &quot;# of companies&quot;, 
        title = &quot;Most of the companies are operating in the finance industry&quot;)</code></pre>
@@ -215,9 +215,9 @@ print(monthly_summarise)</code></pre>
  ggplot(myStocks_returns_monthly,aes(x = monthly_returns)) + geom_density()+facet_wrap(~symbol) +
   theme(axis.text.x = element_text(size = 8),
         axis.text.y = element_text(size = 8),
-        plot.title = element_text(size = 24, face = &quot;bold&quot;, margin = margin(0,0,30,0)), 
-        axis.title.x = element_text(size=18, face=&quot;bold&quot;, margin=margin(20,0,0,0)),
-        axis.title.y = element_text(size=18, face=&quot;bold&quot;, margin=margin(0,20,0,0))) +
+        plot.title = element_text(size = 14, face = &quot;bold&quot;, margin = margin(0,0,30,0)), 
+        axis.title.x = element_text(size=10, face=&quot;bold&quot;, margin=margin(20,0,0,0)),
+        axis.title.y = element_text(size=10, face=&quot;bold&quot;, margin=margin(0,20,0,0))) +
   labs(x=&quot;Density&quot;, 
        y=&quot;Average monthly return&quot;, 
        title=&quot;Distribution of return&quot;)</code></pre>
@@ -240,11 +240,11 @@ ggplot(monthly_summarise, aes(x = sd_return,
   geom_text_repel(aes(label = symbol), 
                   size = 4) +
   geom_point(size = 2) +
-  theme(axis.text.x = element_text(size = 14, margin=margin(15,0,0,0)),
-        axis.text.y = element_text(size = 14, margin = margin(0,15,0,0)),
-        plot.title = element_text(size = 24, face = &quot;bold&quot;, margin = margin(0,0,30,0)), 
-        axis.title.x = element_text(size = 18, face = &quot;bold&quot;, margin = margin(20,0,0,0)),
-        axis.title.y = element_text(size = 18, face = &quot;bold&quot;, margin = margin(0,20,0,0))) +
+  theme(axis.text.x = element_text(size = 10, margin=margin(15,0,0,0)),
+        axis.text.y = element_text(size = 10, margin = margin(0,15,0,0)),
+        plot.title = element_text(size = 14, face = &quot;bold&quot;, margin = margin(0,0,30,0)), 
+        axis.title.x = element_text(size = 10, face = &quot;bold&quot;, margin = margin(20,0,0,0)),
+        axis.title.y = element_text(size = 10, face = &quot;bold&quot;, margin = margin(0,20,0,0))) +
   labs(x=&quot;Standard deviation&quot;, 
        y=&quot;Expected monthly return&quot;, 
        title=&quot;The data does not support the Efficient Market Hypothesis&quot;)</code></pre>
