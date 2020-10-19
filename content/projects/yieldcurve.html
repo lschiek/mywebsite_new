@@ -16,8 +16,7 @@ title: The Inverted Yield Curve
 <p><strong>The inverted yield curve</strong></p>
 <p>Every so often, we hear warnings from commentators on the “inverted yield curve” and its predictive power with respect to recessions. An explainer what a <a href="https://www.reuters.com/article/us-usa-economy-yieldcurve-explainer/explainer-what-is-an-inverted-yield-curve-idUSKBN1O50GA">inverted yield curve is can be found here</a>. If you’d rather listen to something, here is a great podcast from <a href="https://www.podbean.com/media/share/dir-4zgj9-6aefd11">NPR on yield curve indicators</a></p>
 <p>In addition, many articles and commentators think that, e.g., <a href="https://www.bloomberg.com/news/articles/2019-08-14/u-k-yield-curve-inverts-for-first-time-since-financial-crisis"><em>Yield curve inversion is viewed as a harbinger of recession</em></a>. One can always doubt whether inversions are truly a harbinger of recessions, and <a href="https://twitter.com/5_min_macro/status/1161627360946511873">use the attached parable on yield curve inversions</a>.</p>
-<p>We are accessing <a href="https://fred.stlouisfed.org/">FRED database</a> to download historical yield curve rates for the US, and plot the yield curves since 1999 to see when the yield curves flatten. If you want to know more, a very nice article that explains the <a href="https://fredblog.stlouisfed.org/2018/10/the-data-behind-the-fear-of-yield-curve-inversions/">yield curve is and its inversion can be found here</a>. At the end of this chllenge you should produce this chart</p>
-<p><img src="/Users/lucaschiek/Desktop/mywebsite_new/images/yield_curve_challenge.png" width="100%" style="display: block; margin: auto;" /></p>
+<p>We are accessing <a href="https://fred.stlouisfed.org/">FRED database</a> to download historical yield curve rates for the US, and plot the yield curves since 1999 to see when the yield curves flatten. If you want to know more, a very nice article that explains the <a href="https://fredblog.stlouisfed.org/2018/10/the-data-behind-the-fear-of-yield-curve-inversions/">yield curve is and its inversion can be found here</a>.</p>
 <p>First, we will use the <code>tidyquant</code> package to download monthly rates for different durations.</p>
 <pre class="r"><code># Get a list of FRED codes for US rates and US yield curve; choose monthly frequency
 # to see, eg., the 3-month T-bill https://fred.stlouisfed.org/series/TB3MS
@@ -140,7 +139,6 @@ glimpse(df)</code></pre>
 <p><strong>Plotting the yield curve</strong></p>
 <div id="yields-on-us-rates-by-duration-since-1960" class="section level3">
 <h3>Yields on US rates by duration since 1960</h3>
-<p><img src="/Users/lucaschiek/Desktop/mywebsite_new/images/yield_curve1.png" width="100%" style="display: block; margin: auto;" /></p>
 <pre class="r"><code>maturity_name &lt;- c(
   &#39;3m&#39;=&#39;3-Month Treasury Bill&#39;,
   &#39;6m&#39;=&#39;6-Month Treasury Bill&#39;,
@@ -173,7 +171,6 @@ ggplot(yield_curve,aes(x=date,y=price))+
 </div>
 <div id="monthly-yields-on-us-rates-by-duration-since-1999-on-a-year-by-year-basis" class="section level3">
 <h3>Monthly yields on US rates by duration since 1999 on a year-by-year basis</h3>
-<p><img src="/Users/lucaschiek/Desktop/mywebsite_new/images/yield_curve2.png" width="100%" style="display: block; margin: auto;" /></p>
 <pre class="r"><code>yield_curve2 &lt;- yield_curve %&gt;% 
   mutate(year=year(date),month=month(date)) %&gt;% 
   filter(year&gt;=1999)
@@ -197,7 +194,6 @@ ggplot(yield_curve2,aes(x=maturity,y=price))+
 </div>
 <div id="month-and-10-year-yields-since-1999" class="section level3">
 <h3>3-month and 10-year yields since 1999</h3>
-<p><img src="/Users/lucaschiek/Desktop/mywebsite_new/images/yield_curve3.png" width="100%" style="display: block; margin: auto;" /></p>
 <pre class="r"><code>yield_curve3 &lt;- yield_curve %&gt;% 
   mutate(year=year(date),month=month(date)) %&gt;% 
   filter(year&gt;=1999) %&gt;% 
