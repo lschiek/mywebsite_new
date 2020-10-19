@@ -106,9 +106,9 @@ googleAnalytics = "UA-180801436-1"
       url = "blogs/magna"
 
     [[params.tiles.showcase]]
-      title = "Ipsum"
-      subtitle = "Nisl Sed Aliquam"
-      image = "pic04.jpg"
+      title = "GDP Decomposition"
+      subtitle = "Analysing the drivers of GDP"
+      image = "GDP.jpeg"
       url = "projects/gdpdecomp"
 
    # [[params.tiles.showcase]]
