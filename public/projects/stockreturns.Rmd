@@ -64,13 +64,14 @@ First, we want to get have a look at the industries the companies are operating 
 sector_stocks <- nyse %>% 
   group_by(sector)%>% 
   count(sort = TRUE)
-ggplot(sector_stocks, aes(x = reorder(sector, -n), y = n)) + 
+ggplot(sector_stocks, aes(x = reorder(sector, n), y = n)) + 
   geom_col() +
-  theme(axis.text.x = element_text(size = 10, angle = 60, hjust = 1, margin=margin(15,0,0,0)),
+  coord_flip() +
+  theme(axis.text.x = element_text(size = 10, hjust = 1, margin=margin(15,0,0,0)),
         axis.text.y = element_text(size = 10, margin = margin(0,15,0,0)),
         plot.title = element_text(size = 12, face = "bold", margin = margin(0,0,20,0)), 
-        axis.title.x = element_blank(),
-        axis.title.y = element_text(size=10, face="bold", margin=margin(0,20,0,0))) +
+        axis.title.x = element_text(size=10, face="bold", margin=margin(0,0,0,20)),
+        axis.title.y = element_blank()) +
   labs(x = "NONE", 
        y = "# of companies", 
        title = "Most of the companies are operating in the finance industry")

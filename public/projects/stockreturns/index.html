@@ -89,13 +89,14 @@
 sector_stocks &lt;- nyse %&gt;% 
   group_by(sector)%&gt;% 
   count(sort = TRUE)
-ggplot(sector_stocks, aes(x = reorder(sector, -n), y = n)) + 
+ggplot(sector_stocks, aes(x = reorder(sector, n), y = n)) + 
   geom_col() +
-  theme(axis.text.x = element_text(size = 10, angle = 60, hjust = 1, margin=margin(15,0,0,0)),
+  coord_flip() +
+  theme(axis.text.x = element_text(size = 10, hjust = 1, margin=margin(15,0,0,0)),
         axis.text.y = element_text(size = 10, margin = margin(0,15,0,0)),
         plot.title = element_text(size = 12, face = &quot;bold&quot;, margin = margin(0,0,20,0)), 
-        axis.title.x = element_blank(),
-        axis.title.y = element_text(size=10, face=&quot;bold&quot;, margin=margin(0,20,0,0))) +
+        axis.title.x = element_text(size=10, face=&quot;bold&quot;, margin=margin(0,0,0,20)),
+        axis.title.y = element_blank()) +
   labs(x = &quot;NONE&quot;, 
        y = &quot;# of companies&quot;, 
        title = &quot;Most of the companies are operating in the finance industry&quot;)</code></pre>
