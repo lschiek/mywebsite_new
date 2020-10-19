@@ -100,10 +100,10 @@ googleAnalytics = "UA-180801436-1"
       url = "projects/stockreturns"
 
     [[params.tiles.showcase]]
-      title = "Magna"
-      subtitle = "Lorem Etiam Nullam"
-      image = "pic03.jpg"
-      url = "blogs/magna"
+      title = "The Inverted Yield Curve"
+      subtitle = "... and its predictive power"
+      image = "lehmann.jpeg"
+      url = "projects/yieldcurve"
 
     [[params.tiles.showcase]]
       title = "GDP Decomposition"

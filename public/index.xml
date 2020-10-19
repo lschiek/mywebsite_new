@@ -50,12 +50,23 @@ nyse &amp;lt;- read_csv(here::here(&amp;quot;data&amp;quot;,&amp;quot;nyse.csv&a
     </item>
     
     <item>
-      <title>Magna</title>
-      <link>/blogs/magna/</link>
+      <title>The Inverted Yield Curve</title>
+      <link>/blogs/yieldcurve/</link>
       <pubDate>Tue, 31 Oct 2017 22:26:09 -0500</pubDate>
       
-      <guid>/blogs/magna/</guid>
+      <guid>/blogs/yieldcurve/</guid>
       <description></description>
+    </item>
+    
+    <item>
+      <title>The inverted yield curve</title>
+      <link>/projects/yield-curve/</link>
+      <pubDate>Tue, 31 Oct 2017 22:26:09 -0500</pubDate>
+      
+      <guid>/projects/yield-curve/</guid>
+      <description>The inverted yield curve
+Every so often, we hear warnings from commentators on the “inverted yield curve” and its predictive power with respect to recessions. An explainer what a inverted yield curve is can be found here. If you’d rather listen to something, here is a great podcast from NPR on yield curve indicators
+In addition, many articles and commentators think that, e.g., Yield curve inversion is viewed as a harbinger of recession.</description>
     </item>
     
     <item>

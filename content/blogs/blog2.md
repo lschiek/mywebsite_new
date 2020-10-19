@@ -3,10 +3,10 @@ categories:
 - ""
 - ""
 date: "2017-10-31T22:26:09-05:00"
-description: Lorem Etiam Nullam
+description: We are investigating US yield data from the FRED database to analyse the predictive power of inverted yield curves to its ability to forecast recessions. 
 draft: false
-image: pic09.jpg
+image: wallstreet.jpeg
 keywords: ""
-slug: magna
-title: Magna
+slug: yieldcurve
+title: The Inverted Yield Curve
 ---
