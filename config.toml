@@ -5,7 +5,7 @@ title = "Luca Schiek"
 theme = "forty"
 
 # Enter your tracking code to enable Google Analytics
-googleAnalytics = ""
+googleAnalytics = "UA-180801436-1"
 
 # Enter your disqus shortname to enable comments
 # disqusShortname = ""
