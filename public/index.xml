@@ -13,7 +13,7 @@
       <pubDate>Tue, 31 Oct 2017 22:42:51 -0500</pubDate>
       
       <guid>/blogs/aboutme/</guid>
-      <description></description>
+      <description>Personal Introduction.</description>
     </item>
     
     <item>
@@ -35,7 +35,7 @@ Motivation
       <pubDate>Tue, 31 Oct 2017 22:26:13 -0500</pubDate>
       
       <guid>/blogs/stockreturns/</guid>
-      <description></description>
+      <description>In this chapter, we will investigate stock data from NYSE and DIJA. While doing so, basic financial theory and concepts will be explained and applied to real stock data.</description>
     </item>
     
     <item>
@@ -55,7 +55,7 @@ nyse &amp;lt;- read_csv(here::here(&amp;quot;data&amp;quot;,&amp;quot;nyse.csv&a
       <pubDate>Tue, 31 Oct 2017 22:26:09 -0500</pubDate>
       
       <guid>/blogs/yieldcurve/</guid>
-      <description></description>
+      <description>We are investigating US yield data from the FRED database to analyse the predictive power of inverted yield curves to its ability to forecast recessions.</description>
     </item>
     
     <item>

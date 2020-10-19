@@ -10,3 +10,5 @@ keywords: ""
 slug: yieldcurve
 title: The Inverted Yield Curve
 ---
+
+We are investigating US yield data from the FRED database to analyse the predictive power of inverted yield curves to its ability to forecast recessions. 
