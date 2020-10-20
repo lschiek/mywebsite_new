@@ -1,0 +1,249 @@
+---
+categories:
+- ""
+- ""
+date: "2017-10-31T22:26:13-05:00"
+description: In this chapter, we will investigate stock data from NYSE and DIJA. While doing so, basic financial theory and concepts will be explained and applied to real stock data.
+draft: false
+image: stockmarket.jpg
+keywords: ""
+slug: stockreturns
+title: Stock Returns
+---
+
+
+```{r, setup, echo=FALSE}
+knitr::opts_chunk$set(
+  message = FALSE, 
+  warning = FALSE, 
+  tidy=FALSE,     # display code as typed
+  size="small")   # slightly smaller font for code
+options(digits = 3)
+
+# default figure size
+knitr::opts_chunk$set(
+  fig.width=6.75, 
+  fig.height=6.75,
+  fig.align = "center"
+)
+```
+
+
+```{r load-libraries, warning=FALSE, message=FALSE, echo=FALSE}
+library(tidyverse)  # Load ggplot2, dplyr, and all the other tidyverse packages
+library(mosaic)
+library(ggthemes)
+library(lubridate)
+library(fivethirtyeight)
+library(here)
+library(skimr)
+library(janitor)
+library(vroom)
+library(tidyquant)
+library(rvest)    # scrape websites
+library(purrr)  
+library(lubridate) #to handle dates
+library(ggrepel)
+library(tidytext)
+```
+
+We will use the `tidyquant` package to download historical data of stock prices, calculate returns, and examine the distribution of returns. 
+
+The file `nyse.csv` contains 508 stocks listed on the NYSE, their ticker `symbol`, `name`, the IPO  (Initial Public Offering) year, and the sector and industry the company is in.
+
+
+```{r load_nyse_data, message=FALSE, warning=FALSE}
+nyse <- read_csv(here::here("data","nyse.csv"))
+```
+
+First, we want to get have a look at the industries the companies are operating in. Therefore, we create bar plot that shows as how many companies are in each industry.
+
+```{r companies_per_sector,warning=FALSE, message=FALSE}
+
+# YOUR CODE GOES HERE
+sector_stocks <- nyse %>% 
+  group_by(sector)%>% 
+  count(sort = TRUE)
+ggplot(sector_stocks, aes(x = reorder(sector, n), y = n)) + 
+  geom_col() +
+  coord_flip() +
+  theme(axis.text.x = element_text(size = 10, hjust = 1, margin=margin(15,0,0,0)),
+        axis.text.y = element_text(size = 10, margin = margin(0,15,0,0)),
+        plot.title = element_text(size = 12, face = "bold", margin = margin(0,0,20,0)), 
+        axis.title.x = element_text(size=10, face="bold", margin=margin(0,0,0,20)),
+        axis.title.y = element_blank()) +
+  labs(x = "NONE", 
+       y = "# of companies", 
+       title = "Most of the companies are operating in the finance industry")
+
+
+```
+
+As the above chart suggests, the finance industry is the biggest industry in terms of numbers of companies operating in it. Transportation and Consumer Durables are with 11 and 8 companies, respectively, the at least represented industries.
+
+Now, let's choose the [Dow Jones Industrial Aveareg (DJIA)](https://en.wikipedia.org/wiki/Dow_Jones_Industrial_Average) stocks and their ticker symbols and download some data. Besides the thirty stocks that make up the DJIA, we will also add `SPY` which is an SP500 ETF ([Exchange Traded Fund](https://www.investopedia.com/terms/e/etf.asp)).
+
+
+```{r tickers_from_wikipedia}
+
+djia_url <- "https://en.wikipedia.org/wiki/Dow_Jones_Industrial_Average"
+
+#get tables that exist on URL
+tables <- djia_url %>% 
+  read_html() %>% 
+  html_nodes(css="table")
+
+
+# parse HTML tables into a dataframe called djia. 
+# Use purr::map() to create a list of all tables in URL
+djia <- map(tables, . %>% 
+               html_table(fill=TRUE)%>% 
+               clean_names())
+
+
+# constituents
+table1 <- djia[[2]] %>% # the second table on the page contains the ticker symbols
+  mutate(date_added = ymd(date_added),
+         
+         # if a stock is listed on NYSE, its symbol is, e.g., NYSE: MMM
+         # We will get prices from yahoo finance which requires just the ticker
+         
+         # if symbol contains "NYSE*", the * being a wildcard
+         # then we jsut drop the first 6 characters in that string
+         ticker = ifelse(str_detect(symbol, "NYSE*"),
+                          str_sub(symbol,7,11),
+                          symbol)
+         )
+
+# we need a vector of strings with just the 30 tickers + SPY
+tickers <- table1 %>% 
+  select(ticker) %>% 
+  pull() %>% # pull() gets them as a sting of characters
+  c("SPY") # and lets us add SPY, the SP500 ETF
+
+```
+
+
+
+
+```{r get_price_data, message=FALSE, warning=FALSE, cache=TRUE}
+# Notice the cache=TRUE argument in the chunk options. Because getting data is time consuming, # cache=TRUE means that once it downloads data, the chunk will not run again next time you knit your Rmd
+
+myStocks <- tickers %>% 
+  tq_get(get  = "stock.prices",
+         from = "2000-01-01",
+         to   = "2020-08-31") %>%
+  group_by(symbol) 
+
+glimpse(myStocks) # examine the structure of the resulting data frame
+```
+
+Financial performance analysis depend on returns; If I buy a stock today for 100 and I sell it tomorrow for 101.75, my one-day return, assuming no transaction costs, is 1.75%. So given the adjusted closing prices, our first step is to calculate daily and monthly returns.
+
+
+```{r calculate_returns, message=FALSE, warning=FALSE, cache=TRUE}
+#calculate daily returns
+myStocks_returns_daily <- myStocks %>%
+  tq_transmute(select     = adjusted, 
+               mutate_fun = periodReturn, 
+               period     = "daily", 
+               type       = "log",
+               col_rename = "daily_returns",
+               cols = c(nested.col))  
+
+#calculate monthly  returns
+myStocks_returns_monthly <- myStocks %>%
+  tq_transmute(select     = adjusted, 
+               mutate_fun = periodReturn, 
+               period     = "monthly", 
+               type       = "arithmetic",
+               col_rename = "monthly_returns",
+               cols = c(nested.col)) 
+
+#calculate yearly returns
+myStocks_returns_annual <- myStocks %>%
+  group_by(symbol) %>%
+  tq_transmute(select     = adjusted, 
+               mutate_fun = periodReturn, 
+               period     = "yearly", 
+               type       = "arithmetic",
+               col_rename = "yearly_returns",
+               cols = c(nested.col))
+```
+
+To get a better idea of the characteristics and returns pf the stocks and `SPY`, we will now summarise monthly returns beginning 01. January 2007 and look at the *Minimum, Maximum, Median, Mean and Standard Deviation* of the returns.
+
+```{r summarise_monthly_returns}
+
+# Summarise Statistics
+monthly_summarise <- myStocks_returns_monthly %>% 
+  filter(date >= 2017-01-01) %>% 
+  group_by(symbol) %>% 
+  summarise(min_return = min(monthly_returns), #Minimum
+            max_return = max(monthly_returns), #Maximum
+            med_return = median(monthly_returns), #Median
+            mean_return = mean(monthly_returns), #Mean
+            sd_return = sd(monthly_returns)) #Standard Deviation
+  
+print(monthly_summarise)
+```
+
+By plotting a density plot using `geom_density()`, we can evalute the distribution of the returns for each of the stocks.
+
+```{r density_monthly_returns}
+
+# Density Plot per stock
+ ggplot(myStocks_returns_monthly,aes(x = monthly_returns)) + geom_density()+facet_wrap(~symbol) +
+  theme(axis.text.x = element_text(size = 8),
+        axis.text.y = element_text(size = 8),
+        plot.title = element_text(size = 14, face = "bold", margin = margin(0,0,30,0)), 
+        axis.title.x = element_text(size=10, face="bold", margin=margin(20,0,0,0)),
+        axis.title.y = element_text(size=10, face="bold", margin=margin(0,20,0,0))) +
+  labs(x="Density", 
+       y="Average monthly return", 
+       title="Distribution of return")
+       
+#Second option       
+ggplot(myStocks_returns_monthly, aes(monthly_returns, ..count..)) + 
+  geom_histogram(aes(colour=symbol, fill=symbol), binwidth=.2) +
+  geom_freqpoly(colour="black", binwidth=.2) +
+  facet_wrap(~symbol)
+  
+  
+```
+
+As one would expect, we can see that returns for individual stocks follow an imperfect normal distribution. Compared to stock prices, which are best described using a lognormal distribution, stock returns can be described by the normal distribution given that they can be both positive and negative, and thus distribute around their median.
+
+From empirical research we know that stock returns are normally distributed, but they tend to have fatter tails, or in statistical terminology, higher/excess kurtosis. For investors, excess kurtosis implies that the they will experience occasional extreme returns (either positive or negative), more extreme than the usual plus or minus three standard deviations from the mean that is predicted by the normal distribution of returns. 
+
+Keeping this in mind, we can clearly see how the average single stock seems riskier (i.e. having a higher probability of extreme positive or negative returns) compared to the SP500 ETF (`SPY`). Companies such as Cisco Systems, Home Depot, Johnson & Johnson and Merck & Co. represent examples of stock returns that for the time period in consideration tend were highly volatile. However, there are some other stocks that performed just as good if not better than the SP500, such as Walmart, Microsoft or Procter & Gamble. We can deduct this by noticing how most returns are concentrated around the median, making extreme outcomes relatively rare. 
+
+As a final consideration, we would like to point to the frequent small dips on the left-hand side of most singular stock returns. These observations represent particularly low monthly returns. An explanation for this phenomenon can be found in the phycology and nature of financial markets: When bad news hit the market, market reaction is usually quicker and of larger magnitude than when good news spreads. 
+
+
+
+As we have already seen, all singular stocks have different characteristics both in terms of returns and risks. From an investor view point, it is rational to consider both risk and return in order to make an investment decision. Harry F. Markowitz with his [Modern Portfolio Theory](https://www.math.ust.hk/~maykwok/courses/ma362/07F/markowitz_JF.pdf) and later William F. Sharpe (1964), John Lintner (1965) and Jan Mossin (1966) with the [Capital Asset Pricing Model](https://www.investopedia.com/terms/c/capm.asp) have laid the foundation the understanding of risk and return. For now, we will have a look at a risk-/return scatter plot for all our stocks.
+
+
+```{r risk_return_plot}
+# Risk-/Return Scatter Plot
+library(ggrepel)
+ggplot(monthly_summarise, aes(x = sd_return, 
+                              y = mean_return)) +
+  geom_text_repel(aes(label = symbol), 
+                  size = 4) +
+  geom_point(size = 2) +
+  theme(axis.text.x = element_text(size = 10, margin=margin(15,0,0,0)),
+        axis.text.y = element_text(size = 10, margin = margin(0,15,0,0)),
+        plot.title = element_text(size = 14, face = "bold", margin = margin(0,0,30,0)), 
+        axis.title.x = element_text(size = 10, face = "bold", margin = margin(20,0,0,0)),
+        axis.title.y = element_text(size = 10, face = "bold", margin = margin(0,20,0,0))) +
+  labs(x="Standard deviation", 
+       y="Expected monthly return", 
+       title="The data does not support the Efficient Market Hypothesis")
+```
+
+
+According to the efficient-market hypothesis, all the dots in our sample should theoretically line up on straight line (linear relationship between risk and return) – otherwise we would have an arbitrage opportunity. In this particular occasion, the efficient-market hypothesis’ performance is particularly poor. Indeed, there are some stocks that clearly outperformed others without necessarily being riskier. Let us look for example at Cisco Systems and Nike. Cisco averaged a monthly return of zero with a standard deviation of returns of almost 10%. Nike, on the other side, delivered a 2% monthly returns with its riskiness being only around 7%. Clearly, for the time period considered, Nike was the better investment. There are also several risk-adjusted return measures which do not only consider absolute return but also risk. One of the most popular measure in financial literacy is the Sharpe Ratio. The Sharpe Ratio in its simple form is calculated as return divided risk. This measure gives insights to how much return an investor gets for each unit of risk. From a financial standpoint, stocks with a low Sharpe Ratio are less favorable than stocks with a high Sharpe Ratio. 
+
+

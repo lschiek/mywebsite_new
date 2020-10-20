@@ -3,7 +3,7 @@ categories:
 - ""
 - ""
 date: "2017-10-31T22:42:51-05:00"
-description: In this chapter, data on airbnb listings and fit a model to predict the total cost for two people staying 4 nights in an airbnb in Shanghai
+description: In this chapter, data on airbnb listings is analysed and a model to predict the total cost for two people staying 4 nights in an airbnb in Shanghai is fitted.
 draft: false
 image: shanghai.jpg
 keywords: ""

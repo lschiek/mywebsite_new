@@ -1,0 +1,36 @@
+---
+categories:
+- ""
+- ""
+date: "2017-10-31T22:42:51-05:00"
+description: Personal Introduction.
+draft: false
+image: IMG_4100.jpg
+keywords: ""
+slug: aboutme
+title: About me
+---
+
+**… where it all started**
+
+Dear Visitor, 
+
+my name is Luca Schiek and I am the creator of this page. I am 22 years old and was born in Krefeld, Germany. During my high school years at the Gymnasium am Moltkeplatz, I socially engaged in the student-run humanitarian initiative [Moltke für Afrika e.V.](http://www.moltke.de/inhalt/seite/moltke-fuer-afrika) and played competitive tennis @HTC Blau-Weiß Krefeld. 
+
+
+
+**Motivation**
+
+>*“Talent wins games, but teamwork and intelligence win championships”*
+-	Michael Jordan
+
+This is one of the most substantial lessons my trainer, teammates and the sport itself taught me. Retroperspectively, most of my athletic achievements were the result of joint commitment rather than individual brilliance. Indeed, this lesson also holds true beyond sports. On a much larger scale, today’s global challenges can only be overcome by the collective effort of our society. This mindset is the main driver for why I have always tried to contribute as much as I can to achieve a goal that holds personal significance for me - that of leaving a better world for our children and children`s children.
+
+
+
+**Career Development**
+
+>*“An investment in knowledge pays the best interest”*
+- Benjamin Franklin
+
+After graduating from high school, I moved to Switzerland to pursue my undergraduate studies @[University of St. Gallen](https://www.unisg.ch). During this time, I interned with several firms in different industries (e.g. M&A, Private Equity, Insurance) and was able to gain relevant professional experience. This intensified my desire to pursue a career in the financial sector. I am currently enrolled in the MSc in Financial Analysis @[London Business School](https://www.linkedin.com/school/london-business-school/) and I am looking forward to further develop both on a personal and professional basis.

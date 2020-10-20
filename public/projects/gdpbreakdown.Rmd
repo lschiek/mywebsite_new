@@ -3,7 +3,7 @@ categories:
 - ""
 - ""
 date: "2017-10-31T21:28:43-05:00"
-description: ""
+description: "In this chapter, we will have a decomposite the main driver of GDP based on real life data"
 draft: false
 image: economy.jpeg
 keywords: ""
