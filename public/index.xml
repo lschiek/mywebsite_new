@@ -71,6 +71,7 @@ nyse &amp;lt;- read_csv(here::here(&amp;quot;data&amp;quot;,&amp;quot;nyse.csv&a
     <item>
       <title>The Inverted Yield Curve</title>
       <link>/blogs/yieldcurve/</link>
+<<<<<<< HEAD
       <pubDate>Tue, 31 Oct 2017 22:26:09 -0500</pubDate>
       
       <guid>/blogs/yieldcurve/</guid>
@@ -82,6 +83,19 @@ nyse &amp;lt;- read_csv(here::here(&amp;quot;data&amp;quot;,&amp;quot;nyse.csv&a
       <link>/projects/yieldcurve/</link>
       <pubDate>Tue, 31 Oct 2017 22:26:09 -0500</pubDate>
       
+=======
+      <pubDate>Tue, 31 Oct 2017 22:26:09 -0500</pubDate>
+      
+      <guid>/blogs/yieldcurve/</guid>
+      <description>We are investigating US yield data from the FRED database to analyse the predictive power of inverted yield curves to its ability to forecast recessions.</description>
+    </item>
+    
+    <item>
+      <title>The Inverted Yield Curve</title>
+      <link>/projects/yieldcurve/</link>
+      <pubDate>Tue, 31 Oct 2017 22:26:09 -0500</pubDate>
+      
+>>>>>>> c80d2ad8328a08bfa8a0c638eb6dfbf0a3f1f4b7
       <guid>/projects/yieldcurve/</guid>
       <description>The inverted yield curve
 Every so often, we hear warnings from commentators on the “inverted yield curve” and its predictive power with respect to recessions. An explainer what a inverted yield curve is can be found here. If you’d rather listen to something, here is a great podcast from NPR on yield curve indicators
