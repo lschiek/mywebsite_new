@@ -14,7 +14,6 @@
       
       <guid>/blogs/aboutme/</guid>
       <description>Personal Introduction.</description>
-<<<<<<< HEAD
     </item>
     
     <item>
@@ -24,8 +23,6 @@
       
       <guid>/blogs/airbnb/</guid>
       <description>In this chapter, data on airbnb listings and fit a model to predict the total cost for two people staying 4 nights in an airbnb in Shanghai.</description>
-=======
->>>>>>> 79c423c8494d247905afc723ff0fbe91a80b9ecd
     </item>
     
     <item>
