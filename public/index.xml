@@ -13,7 +13,7 @@
       <pubDate>Tue, 31 Oct 2017 22:42:51 -0500</pubDate>
       
       <guid>/blogs/aboutme/</guid>
-      <description></description>
+      <description>Personal Introduction.</description>
     </item>
     
     <item>
@@ -30,12 +30,31 @@ Motivation
     </item>
     
     <item>
+      <title>Insights to airbnb Shanghai</title>
+      <link>/blogs/airbnb/</link>
+      <pubDate>Tue, 31 Oct 2017 22:42:51 -0500</pubDate>
+      
+      <guid>/blogs/airbnb/</guid>
+      <description>In this chapter, data on airbnb listings and fit a model to predict the total cost for two people staying 4 nights in an airbnb in Shanghai.</description>
+    </item>
+    
+    <item>
+      <title>Insights to airbnb Shanghai</title>
+      <link>/projects/airbnb/</link>
+      <pubDate>Tue, 31 Oct 2017 22:42:51 -0500</pubDate>
+      
+      <guid>/projects/airbnb/</guid>
+      <description>## [1] &amp;quot;&amp;quot;  Let’s do some basic work first
+ listings &amp;lt;- vroom(&amp;quot;listings.csv&amp;quot;) # Reading the data #Exploring the data set dplyr::glimpse(listings) # There are 106 variables/columns,and 43,701 rows/observations ## Rows: 41,415 ## Columns: 106 ## $ id &amp;lt;dbl&amp;gt; 24963, 24991, 139828, 16… ## $ listing_url &amp;lt;chr&amp;gt; &amp;quot;https://www.airbnb.com/… ## $ scrape_id &amp;lt;dbl&amp;gt; 2.02e+13, 2.02e+13, 2.02… ## $ last_scraped &amp;lt;date&amp;gt; 2020-06-23, 2020-06-23,… ## $ name &amp;lt;chr&amp;gt; &amp;quot;Heart of French Concess… ## $ summary &amp;lt;chr&amp;gt; &amp;quot;The flat is located in … ## $ space &amp;lt;chr&amp;gt; &amp;quot;This is an one bedroom … ## $ description &amp;lt;chr&amp;gt; &amp;quot;The flat is located in … ## $ experiences_offered &amp;lt;chr&amp;gt; &amp;quot;none&amp;quot;, &amp;quot;none&amp;quot;, &amp;quot;none&amp;quot;, … ## $ neighborhood_overview &amp;lt;chr&amp;gt; &amp;quot;It&amp;#39;s Shanghai Music Con… ## $ notes &amp;lt;chr&amp;gt; NA, NA, &amp;quot;--Because the c… ## $ transit &amp;lt;chr&amp;gt; &amp;quot;Three subway lines with… ## $ access &amp;lt;chr&amp;gt; &amp;quot;The whole flat is for g… ## $ interaction &amp;lt;chr&amp;gt; &amp;quot;I am available on call … ## $ house_rules &amp;lt;chr&amp;gt; &amp;quot;Smoking is prohibited i… ## $ thumbnail_url &amp;lt;lgl&amp;gt; NA, NA, NA, NA, NA, NA, … ## $ medium_url &amp;lt;lgl&amp;gt; NA, NA, NA, NA, NA, NA, … ## $ picture_url &amp;lt;chr&amp;gt; &amp;quot;https://a0.</description>
+    </item>
+    
+    <item>
       <title>Stock Analysis</title>
       <link>/blogs/stockreturns/</link>
       <pubDate>Tue, 31 Oct 2017 22:26:13 -0500</pubDate>
       
       <guid>/blogs/stockreturns/</guid>
-      <description></description>
+      <description>In this chapter, we will investigate stock data from NYSE and DIJA. While doing so, basic financial theory and concepts will be explained and applied to real stock data.</description>
     </item>
     
     <item>
@@ -50,12 +69,23 @@ nyse &amp;lt;- read_csv(here::here(&amp;quot;data&amp;quot;,&amp;quot;nyse.csv&a
     </item>
     
     <item>
-      <title>Magna</title>
-      <link>/blogs/magna/</link>
+      <title>The Inverted Yield Curve</title>
+      <link>/blogs/yieldcurve/</link>
       <pubDate>Tue, 31 Oct 2017 22:26:09 -0500</pubDate>
       
-      <guid>/blogs/magna/</guid>
-      <description></description>
+      <guid>/blogs/yieldcurve/</guid>
+      <description>We are investigating US yield data from the FRED database to analyse the predictive power of inverted yield curves to its ability to forecast recessions.</description>
+    </item>
+    
+    <item>
+      <title>The Inverted Yield Curve</title>
+      <link>/projects/yieldcurve/</link>
+      <pubDate>Tue, 31 Oct 2017 22:26:09 -0500</pubDate>
+      
+      <guid>/projects/yieldcurve/</guid>
+      <description>The inverted yield curve
+Every so often, we hear warnings from commentators on the “inverted yield curve” and its predictive power with respect to recessions. An explainer what a inverted yield curve is can be found here. If you’d rather listen to something, here is a great podcast from NPR on yield curve indicators
+In addition, many articles and commentators think that, e.g., Yield curve inversion is viewed as a harbinger of recession.</description>
     </item>
     
     <item>
@@ -64,7 +94,7 @@ nyse &amp;lt;- read_csv(here::here(&amp;quot;data&amp;quot;,&amp;quot;nyse.csv&a
       <pubDate>Tue, 31 Oct 2017 21:28:43 -0500</pubDate>
       
       <guid>/blogs/gdpdecomp/</guid>
-      <description>Nullam et orci eu lorem consequat tincidunt vivamus et sagittis magna sed nunc rhoncus condimentum sem. In efficitur ligula tate urna. Maecenas massa sed magna lacinia magna pellentesque lorem ipsum dolor. Nullam et orci eu lorem consequat tincidunt. Vivamus et sagittis tempus.</description>
+      <description>Investigating the different components of GDP and how much each factors contributes to the country´s growth.</description>
     </item>
     
     <item>

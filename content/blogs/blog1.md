@@ -3,7 +3,7 @@ categories:
 - ""
 - ""
 date: "2017-10-31T21:28:43-05:00"
-description: ""
+description: "Investigating the different components of GDP and how much each factors contributes to the country´s growth."
 draft: false
 image: economy.jpeg
 keywords: ""
@@ -11,4 +11,4 @@ slug: gdpdecomp
 title: GDP Decomposition
 ---
 
-Nullam et orci eu lorem consequat tincidunt vivamus et sagittis magna sed nunc rhoncus condimentum sem. In efficitur ligula tate urna. Maecenas massa sed magna lacinia magna pellentesque lorem ipsum dolor. Nullam et orci eu lorem consequat tincidunt. Vivamus et sagittis tempus.
+Investigating the different components of GDP and how much each factors contributes to the country´s growth.

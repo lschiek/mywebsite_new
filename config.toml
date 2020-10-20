@@ -100,22 +100,22 @@ googleAnalytics = "UA-180801436-1"
       url = "projects/stockreturns"
 
     [[params.tiles.showcase]]
-      title = "Magna"
-      subtitle = "Lorem Etiam Nullam"
-      image = "pic03.jpg"
-      url = "blogs/magna"
+      title = "The Inverted Yield Curve"
+      subtitle = "... and its predictive power"
+      image = "lehmann.jpeg"
+      url = "projects/yieldcurve"
 
     [[params.tiles.showcase]]
-      title = "Ipsum"
-      subtitle = "Nisl Sed Aliquam"
-      image = "pic04.jpg"
+      title = "GDP Decomposition"
+      subtitle = "Analysing the drivers of GDP"
+      image = "GDP.jpeg"
       url = "projects/gdpdecomp"
 
-   # [[params.tiles.showcase]]
-    #  title = "Consequat"
-     # subtitle = "Ipsum Dolor Sit Amet"
-      #image = "pic05.jpg"
-      #url = "blogs/ipsum"
+    [[params.tiles.showcase]]
+      title = "airbnb"
+      subtitle = "Insights to airbnb Shanghai"
+      image = "airbnb.jpeg"
+      url = "projects/airbnb"
 
     #[[params.tiles.showcase]]
      # title = "Etiam"
@@ -134,12 +134,13 @@ googleAnalytics = "UA-180801436-1"
   # Section Type Two
   [params.two]
     enable = true
-    title = "Massa libero"
-    subtitle = """Nullam et orci eu lorem consequat tincidunt vivamus et sagittis libero. 
-    Mauris aliquet magna magna sed nunc rhoncus pharetra. 
-    Pellentesque condimentum sem. In efficitur ligula tate urna. Maecenas laoreet massa vel lacinia pellentesque lorem ipsum dolor. 
-    Nullam et orci eu lorem consequat tincidunt. Vivamus et sagittis libero.
-    Mauris aliquet magna magna sed nunc rhoncus amet pharetra et feugiat tempus."""
+    title = "Fighting Inequality"
+    subtitle = """Lets fight inequality. Together. 
+    The prevalance of inequlity across so many dimensions is disturbing. 
+    We are all spending so much time on social media. So why don´t we use 
+    such platforms to raise awareness regarding the different inequalities in our world. 
+    Today’s global challenges can only be overcome by the collective effort of our society - and everbody has
+    to contribute their part, no matter how little. Lets fight inequality. Together."""
     buttonText = "Get Started"
     url = "blogs"
 

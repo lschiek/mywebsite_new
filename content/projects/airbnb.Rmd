@@ -1,0 +1,640 @@
+---
+categories:
+- ""
+- ""
+date: "2017-10-31T22:42:51-05:00"
+description: In this chapter, data on airbnb listings and fit a model to predict the total cost for two people staying 4 nights in an airbnb in Shanghai
+draft: false
+image: shanghai.jpeg
+keywords: ""
+slug: airbnb
+title: Insights to airbnb Shanghai
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  message = FALSE, 
+  warning = FALSE, 
+  tidy=FALSE,     # display code as typed
+  size="small")   # slightly smaller font for code
+options(digits = 3)
+
+# default figure size
+knitr::opts_chunk$set(
+  fig.width=6.75, 
+  fig.height=6.75,
+  fig.align = "center"
+)
+```
+
+
+```{r load-libraries, echo=FALSE,warning=FALSE,message=FALSE}
+library(tidyverse)  # Load ggplot2, dplyr, and all the other tidyverse packages
+library(mosaic)
+library(ggthemes)
+library(GGally)
+library(readxl)
+library(here)
+library(skimr)
+library(janitor)
+library(broom)
+library(tidyquant)
+library(infer)
+library(openintro)
+library(tidyquant)
+library(ggrepel) #formatting
+library(vroom)
+library(leaflet)
+Sys.setlocale("LC_ALL","English")
+```
+
+> Let's do some basic work first
+
+
+```{r read_data}
+listings <- vroom("listings.csv") # Reading the data
+
+#Exploring the data set
+
+dplyr::glimpse(listings) # There are 106 variables/columns,and 43,701 rows/observations
+
+#explore summary statistics of the variables of interest, or finding NAs
+mosaic::favstats(listings$beds)
+mosaic::favstats(listings$review_scores_rating)
+mosaic::favstats(listings$price)
+mosaic::favstats(listings$latitude)
+mosaic::favstats(listings$monthly_price)
+```
+
+
+>Preliminary analysis shows that we need to do some data tidying work before analysis
+
+
+**Data wrangling**
+
+```{r parse_number,warning=FALSE,message=FALSE}
+#change the data type to number
+listings_number <- listings %>% 
+  mutate(price = parse_number(price)) %>% 
+  mutate(cleaning_fee = parse_number(cleaning_fee)) %>% 
+  mutate(extra_people = parse_number(extra_people)) %>% 
+  mutate(weekly_price = parse_number(weekly_price)) %>% 
+  mutate(monthly_price = parse_number(monthly_price))
+
+#check the data types
+typeof(listings_number$price) 
+
+#WIn the raw data, rows 12928-43701 are all incomplete, they are missing key variable such as longitude,latitude and price.
+
+#Therefore, lets suppose these rows are listings that are not completed nor published on Airbnb and filter them.
+
+listings_filtered <- listings_number %>% 
+  slice(1:12927)
+
+#check the NAs
+mosaic::favstats(listings_filtered$price)
+mosaic::favstats(listings_filtered$cleaning_fee)
+mosaic::favstats(listings_filtered$extra_people)
+mosaic::favstats(listings_filtered$weekly_price)
+mosaic::favstats(listings_filtered$monthly_price)
+
+
+#There is very few data on monthly and weekly price. Conducting an analysis might not be possible
+```
+
+**Handling missing value**
+
+*#1 Cleaning Fee*
+```{r cleaning_fee,warning=FALSE,message=FALSE}
+skimr::skim(listings_filtered$cleaning_fee)
+
+#find the number of missig values for cleaning_fee
+count(is.na(listings_filtered$cleaning_fee))
+
+listings_filtered <- listings_filtered %>%
+  mutate(cleaning_fee = case_when(
+    is.na(cleaning_fee) ~ 0, 
+    TRUE ~ cleaning_fee
+  ))
+skimr::skim(listings_filtered$cleaning_fee)
+```
+
+
+> After manually checking the data, it seems that most of the observations that have missing values for cleaning_fee are because they do not charge for the cleaning fee. So the missing values are replaced by 0.
+
+*#2 Property Type*
+```{r property_type,warning=FALSE,message=FALSE}
+#count the property type
+count_property<-listings_filtered %>% 
+count(property_type)
+count_property
+
+#find top 4 types of property
+count_property %>% 
+  arrange(desc(n))
+
+#create a simplified version of property_type variable that has 5 categories
+listings_filtered <- listings_filtered %>%
+  mutate(prop_type_simplified = case_when(
+    property_type %in% c("Apartment","Villa", "House","Condominium") ~ property_type, 
+    TRUE ~ "Other"
+  ))
+
+#check that prop_type_simplified was correctly made
+listings_filtered %>%
+  count(property_type, prop_type_simplified) %>%
+  arrange(desc(n))       
+```
+
+*3# Minimum Nights*
+
+```{r minimum_nights,warning=FALSE,message=FALSE}
+#most common values for minimum nights
+listings_filtered %>%
+  count(minimum_nights) %>%
+  arrange(desc(n)) 
+
+#change the data type of minimum_nights to number
+listings_filtered <- listings_filtered %>% 
+  mutate(minimum_nights = as.numeric(minimum_nights))
+
+typeof(listings_filtered$minimum_nights) 
+
+#filter the airbnb data so that it only includes observations with minimum_nights <= 4
+
+listings_filtered <-listings_filtered %>%
+  filter(minimum_nights <= 4)
+
+listings_filtered %>%
+  count(minimum_nights) %>%
+  arrange(desc(n)) 
+
+```
+
+> The most common minimum nights is 1 night. But there are also some unusually high values like 30 days, 90 days, 180 days. This means apart from travelling, another reason people use AirBnB is for short rental.
+
+
+**Further Exploratory Data Analysis (EDA)**
+
+*Creating informative visualizations*
+```{r price_range}
+#analyze the price range
+listings_filtered %>% 
+  ggplot(aes(x=price)) +
+  geom_density() +
+    labs(y = "%",
+         x = 'Price per night',
+         title = "What is the range of the price per night?") +
+   theme( axis.title.x = element_text(size=10, face="bold", margin=margin(20,0,0,0)))+
+   NULL
+
+```
+
+>There seems to be some outliers! 
+
+After manually checking the listings with very high price per day, those can be classified into:
+1.	Listings that house owners don’t want them to be listed on Airbnb anymore but couldn’t find a way to delist them, so they just change the price to an unaffordable price.
+2.	Listings that are not intended for travel purpose. For example, some of the very expensive listings are for home party or for wedding ceremony. And these house owners tend to use Airbnb just for advertising. They would be more eager to contact potential customers directly collect the fee directly from potential customers instead of collecting price through booking on Airbnb, so these listings tend to have no reviews at all.
+
+As only listings that are intended for travel purposes are in included in this regression analysis, the data can be filtered accordingly with following standards:
+1.	Listings with a price > 10000 are directly filtered, we consider them as outliers.
+2.	Listings with a price > 4000 and with no reviews are filtered, we consider them listings not intended for travel purposes.
+
+```{r price_outliers,warning=FALSE,message=FALSE}
+listings_filtered <-listings_filtered %>%
+  filter(price <= 10000) %>% 
+  filter(price <= 4000 | is.na(review_scores_rating) == FALSE )
+
+
+```
+
+After this filter we only filter 99 listings in the previous 11589 listings, a rate of 0.85%. We believe this filter will make the following analysis more appropriate.
+
+```{r price_after,warning=FALSE,message=FALSE}
+listings_filtered %>% 
+  ggplot(aes(x=price)) +
+  geom_density() +
+    labs(y = "%",
+         x = 'Price per night',
+         title = "What is the range of the price per night after adjustment?") +
+   theme( axis.title.x = element_text(size=10, face="bold", margin=margin(20,0,0,0)))+
+   NULL
+
+# explore the price range of different types of 
+listings_filtered %>% 
+ggplot(aes(x=prop_type_simplified, y=log(price))) + 
+
+# Our plot will be a boxplot
+  geom_boxplot() +
+  
+  labs(x = '',
+       y = 'log price',
+       title = 'Villa is the most expensive type of property.')
+```
+
+
+
+```{r property type}
+#analyze the property type
+
+listings_filtered$prop_type_simplified<-as.factor(listings_filtered$prop_type_simplified)
+
+listings_filtered %>% 
+  ggplot(aes(x=reorder(prop_type_simplified,prop_type_simplified,
+                     function(x)-length(x)))) +
+  geom_bar() +
+    labs(y = "Number of Houses",
+         x = NULL,
+         title = "Apartment are the most common property types in Shanghai") +
+   theme(axis.title.x = element_text(size = 18, face = "bold", margin = margin(20,0,0,0)))+
+   NULL
+```
+
+```{r neighbourhood,warning=FALSE,message=FALSE,fig.width=12}
+listings_filtered$neighbourhood_cleansed<-as.character(listings_filtered$neighbourhood_cleansed)
+listings_filtered$neighbourhood_cleansed <- iconv(listings_filtered$neighbourhood_cleansed, "latin1", "ASCII", sub="")
+
+listings_filtered$neighbourhood_cleansed <- sub("/","",listings_filtered$neighbourhood_cleansed)
+listings_filtered$neighbourhood_cleansed <- sub("District","",listings_filtered$neighbourhood_cleansed)
+listings_filtered$neighbourhood_cleansed <- gsub(" ","",listings_filtered$neighbourhood_cleansed)
+
+listings_filtered$neighbourhood_cleansed<-as.factor(listings_filtered$neighbourhood_cleansed)
+
+listings_filtered %>% 
+  ggplot(aes(x=reorder(neighbourhood_cleansed,neighbourhood_cleansed,
+                     function(x)-length(x)))) +
+  geom_bar() +
+    labs(y = "Number of Houses",
+         x = NULL,
+         title = "Pudong is the neighbourhood with the most listings in Shanghai!",
+         subtitle= "Of course, according to Proud Pudong native in my study group, Tianen Yao.") +
+   theme( title = element_text(size=12, face="bold"),
+          axis.text.x = element_text(size=10, face="bold", margin=margin(0,0,0,0)),
+          axis.text.y = element_text(size=10, face="bold", margin=margin(0,0,0,0)))+
+   NULL
+```
+
+
+
+```{r relationship,warning=FALSE,message=FALSE}
+#explore the relationship between price and number of reviews and review ratings
+listings_filtered <- listings_filtered %>% 
+  mutate(review_scores_rating = as.numeric(review_scores_rating)) %>% 
+  mutate(number_of_reviews = as.numeric(number_of_reviews)) 
+
+listings_filtered %>% 
+  select(price,review_scores_rating, number_of_reviews) %>% #order variables they will appear in ggpairs()
+  ggpairs(aes(alpha = 0.3))+
+  labs(title="It seems number of reviews and review scores are not strong predictors of price!",
+       subtitle="At least in Shanghai. We would check them more detailedly later.")+
+  theme_bw()
+```
+
+```{r relationship_bed,warning=FALSE,message=FALSE}
+
+listings_filtered <- listings_filtered %>% 
+  mutate(bathrooms = as.numeric(bathrooms)) %>% 
+  mutate(bedrooms = as.numeric(bedrooms)) %>% 
+  mutate(beds = as.numeric(beds)) %>% 
+  mutate(accommodates = as.numeric(accommodates))
+
+#explore the relationship between price and number of bathrooms, bedrooms, and beds
+listings_filtered %>% 
+  select(price, bathrooms, bedrooms,beds) %>% #order variables they will appear in ggpairs()
+  ggpairs(aes(alpha = 0.3))+
+  labs(title="More bathrooms, more bedrooms, more expensive the price!",
+       subtitle="Of course, when a listing is larger, its price tends to be more expensive. ")+
+  theme_bw()
+```
+
+
+# Mapping of Airbnb listings in Shanghai
+
+```{r Airbnb_Mapping_Shanghai,warning=FALSE,message=FALSE}
+listings_filtered <- listings_filtered %>% 
+  mutate(longitude = as.numeric(longitude)) %>% 
+  mutate(latitude = as.numeric(latitude)) 
+
+leaflet(data = listings_filtered) %>% 
+  addProviderTiles("OpenStreetMap.Mapnik") %>% 
+  addCircleMarkers(lng = ~longitude, 
+                   lat = ~latitude, 
+                   radius = 1, 
+                   fillColor = "blue", 
+                   fillOpacity = 0.4, 
+                   popup = ~listing_url,
+                   label = ~property_type)
+```
+
+> Some brief discussion of the Airbnb map of Shanghai
+
+**Welcome to Shanghai guys!** We get to see the Airbnb listing distributions on the above interactive map. Let Tianen Yao, my Pudong Native buddy, briefly lead you around the map.
+
+In the previous bar plot we have seen that Pudong has the highest number of listings (close to 4000) among all neighborhoods in Shanghai, but on the map, it seems listings in Pudong – the district on the east bank of the Huangpu River are not as dense as some districts on the west bank of the Huangpu River. Namely, Huangpu, Xuhui and Jingan, which happens to be the districts with the second, third and fourth highest number of listings among all neighborhoods in Shanghai. 
+
+These three areas are the good old areas of Shanghai with the highest population density in Shanghai, lots of nice houses which can be used for Airbnb, and tons of tourist attractions of Shanghai (For example, The bund and Yu Garden). No wonder the density of Airbnb listings in these neighborhoods are so high! Personally, if you would have the chance to travel to Shanghai in the future, I would suggest you to find your Airbnb in these areas first to access the travel attractions of Shanghai in a more comfortable way. 
+
+On the other hand, Pudong has the highest number of listings on Airbnb mainly because of its volume. With an area of more than 1200 square kilometers and a population more than 5.5 million, it’s simply the hugest neighborhood of Shanghai with the largest population. Inside Pudong, there are clearly regions that have relative more or less dense distributions of Airbnb. Lujiazui, the financial central business district of Shanghai which lies directly across the Huangpu river from the Bund, has barely no listings on Airbnb at all – as most buildings in the Lujiazui area are Skyscrapers for business use instead of residential. On the other hand, in the southeast suburban areas of Pudong, we can see tons of listings in and around the Shanghai Disneyland Park, which is the newest tourist attraction of Shanghai. If you are a Disney fan, you shall not miss this attraction when you come to Shanghai! 
+
+
+# Regression Analysis
+
+
+```{r create_variables,warning=FALSE,message=FALSE}
+listings_filtered <- listings_filtered %>% 
+  mutate(guests_included = as.numeric(guests_included)) %>% 
+  mutate(extra_people = as.numeric(extra_people))
+
+listings_filtered <- listings_filtered %>% 
+  mutate(price_4_nights = ifelse(guests_included>1,price*4+cleaning_fee,(price+extra_people)*4+cleaning_fee))
+
+# Clean outliers with price_4_nights=0,log the price
+listings_filtered <- listings_filtered %>% 
+  filter(price_4_nights>0) %>% 
+  mutate(log_price_4_nights = log(price_4_nights))
+
+```
+
+
+```{r price_4_nights_plot,warning=FALSE,message=FALSE}
+
+
+listings_filtered %>% 
+  ggplot(aes(x=price_4_nights)) +
+  geom_density() +
+    labs(y = "%",
+         x = "Total cost for two people to stay for 4 nights",
+         title = "Without log, the distribution seems to be inappropriate for some regressions.") +
+   theme( axis.title.x = element_text(size=10, face="bold", margin=margin(20,0,0,0)))+
+   NULL
+
+```
+
+```{r log_price_4_nights_plot,warning=FALSE,message=FALSE}
+listings_filtered %>% 
+  ggplot(aes(x=log_price_4_nights)) +
+  geom_density() +
+    labs(y = "%",
+         x = "Log Total cost for two people to stay for 4 nights",
+         title = "With log, the distribution is much more appropriate for some regressions.",
+         subtitle = "Two equal percent changes of price are plotted as the same horizontal distance on the scale.\nThe influence of those very expensive listings are weakened, which are beneficial to regressions") +
+   theme( axis.title.x = element_text(size=10, face="bold", margin=margin(20,0,0,0)))+
+   NULL
+
+listings_price <- listings_filtered %>% arrange(log_price_4_nights)
+
+
+```
+
+> So we would use log(price_4_nights) (variable name log_price_4_nights) as our target variable Y.
+
+> We first fit a regression model called model1 with the following explanatory variables: prop_type_simplified, number_of_reviews, and review_scores_rating.
+
+```{r model1,warning=FALSE,message=FALSE}
+model1 <- lm(log_price_4_nights ~ prop_type_simplified + number_of_reviews + review_scores_rating,data=listings_filtered)
+msummary(model1)
+```
+
+> Analysis on model 1
+
+Based on the summary of model1, we can see that in Shanghai, number of reviews don’t seem to have a very significant impact on how much two people should pay to stay at an Airbnb location for four nights with a p-value of 0.04687.
+
+Meanwhile, in Shanghai review scores rating might have some significant positive impact on 4 nights price for 2 with a p-value of 0.00013. The coefficient of review scores rating is 0.003043, which means for 1 unit of increase of review scores rating, 4 nights price for 2 will increase approximately 0.305%. (Based on the properties of natural log)
+
+As for the property type, our baseline type is the apartment. And the intercept of our model is 6.9703 which is the natural log of geometric mean of 4 nights price for 2 for apartment when number of reviews and review scores rating are equal to zero. (Converting the value back to RMB gives us a geometric mean of 1064.54)
+
+And all the other property types have significant impact on 4 nights price for 2 with very low p-values. The coefficient of condominium is -0.0887, which means the geometric mean of 4 nights price for 2 for condominium is approximately 8.49% lower than apartment. The coefficient of house is 0.158, which means the geometric mean of 4 nights price for 2 for house is approximately 17.1% higher than apartment. The coefficient of villa is 0.543, which means the geometric mean of 4 nights price for 2 for villa is approximately 72.12% higher than apartment. The coefficient of other is 0.091, which means the geometric mean of 4 nights price for 2 for other types of property is approximately 9.53% higher than apartment.
+
+
+> We want to determine if room_type is a significant predictor of the cost for 4 nights, given everything else in the model. Fit a regression model called model2 that includes all of the explanantory variables in model1 plus room_type.
+
+```{r model2,warning=FALSE,message=FALSE}
+listings_filtered <- listings_filtered %>% mutate(room_type=as.factor(room_type))
+
+model2 <- lm(log_price_4_nights ~ prop_type_simplified + room_type + number_of_reviews + review_scores_rating,data=listings_filtered)
+msummary(model2)
+
+```
+
+> Analysis on model 2
+
+From the summary of model 2, we can see that room type is also a significant predictor of 4 nights price for 2, given everything else in the model. There are three room types: Entire home/apt, Private room and shared room. Our baseline type is the Entire home/apt and the other 2 room types have significant impact on 4 nights price for 2 with very low p-values. 
+
+Both of them have a negative coefficient, the coefficient of private room is -0.698, which means controlling other variables, 4 nights price for 2 for a private room is 50.24% lower than an entire home; the coefficient of shared room is -1.194, which means controlling other variables, 4 nights price for 2 for a shared room is 69.7% lower than an entire home. From a tourist’s perspective, it’s natural as when other conditions are the same, tourists are willing to pay the most for an entire home and pay the least for a shared room.
+
+The adjusted R-squared of model 2 also rises significantly compared with model 1, rising from 0.0516 to 0.316.
+
+Another interesting point to be noticed, is that after adding room type to the model, number of reviews now have significant negative impact on 4 nights price for 2. It definitely shows we shouldn’t rush to drop some seemingly insignificant variables in our model after just one try!
+
+
+
+# Further variables
+
+> Are the number of bathrooms, bedrooms, beds, or size of the house (accomodates) significant predictors of price_4_nights?
+
+```{r further_analysis_1,warning=FALSE,message=FALSE}
+
+model3 <- lm(log_price_4_nights ~ prop_type_simplified + room_type + number_of_reviews + 
+               review_scores_rating + bathrooms + bedrooms + beds + accommodates,data=listings_filtered)
+msummary(model3)
+```
+
+> Analysis on model 3
+
+The coefficients of bathrooms, beds and accommodates are all reasonable as when other conditions are the same, more bathrooms/beds/accommodates generally mean that the property is larger and more expensive to book. The negative coefficients of books seem to be confusing at first glance. But we might also suggest that when other conditions are the same, more beds tend to show the house are more crowded, which may reduce the tourists’ willingness to pay. Anyway, the significance of the beds is not so certain (not significant at a confidence level of 1%), and the negative effect of extra beds is not so huge.
+
+The adjusted R-squared of model 3 also rises significantly compared with model 2, rising from 0.316 to 0.504.
+
+> Do superhosts (host_is_superhost) command a pricing premium, after controlling for other variables?
+
+```{r further_analysis_2,warning=FALSE,message=FALSE}
+listings_filtered <- listings_filtered %>% mutate(host_is_superhost=as.factor(host_is_superhost))
+model4 <- lm(log_price_4_nights ~ prop_type_simplified + room_type + number_of_reviews + 
+               review_scores_rating + bathrooms + bedrooms + beds + accommodates 
+             + host_is_superhost ,data=listings_filtered)
+msummary(model4)
+
+```
+
+> Analysis on model 4
+
+After controlling for other variables, being a super host has some significant positive effect. The coefficient is 0.078, which means controlling other variables, being a super host will make the 4 nights price for 2 more expensive by 8.1%.
+
+However, the adjusted R-squared of model 4 barely rises compared with model 3, rising from 0.503 to 0.505, which may imply the super host is not such an important variable.
+
+> Most owners advertise the exact location of their listing (is_location_exact == TRUE), while a non-trivial proportion don’t. After controlling for other variables, is a listing’s exact location a significant predictor of price_4_nights?
+
+```{r further_analysis_3,warning=FALSE,message=FALSE}
+listings_filtered <- listings_filtered %>% mutate(is_location_exact=as.factor(is_location_exact))
+model5 <- lm(log_price_4_nights ~ prop_type_simplified + room_type + number_of_reviews + 
+               review_scores_rating + bathrooms + bedrooms + beds + accommodates 
+             + host_is_superhost + is_location_exact,data=listings_filtered)
+msummary(model5)
+```
+
+> Analysis on model 5
+
+After controlling for other variables, having an exact location in the listing has some significant positive effect. The coefficient is 0.0188, which means controlling other variables, having an exact location shown in the listing will make the 4 nights price for 2 more expensive by 1.90%, as tourists may have higher willingness to pay if the exact location is shown.
+
+However, the adjusted R-squared of model 5 barely rises compared with model 4, rising from 0.505 to 0.506, which may imply having an exact location in the listing is not such an important variable.
+
+
+
+> For all cities, there are 3 variables that relate to neighbourhoods: neighbourhood, neighbourhood_cleansed, and neighbourhood_group_cleansed. 
+
+There are typically more than 20 neighbourhoods in each city, and it wouldn’t make sense to include them all in your model. Use your city knowledge, or ask someone with city knowledge, and see whether you can group neighbourhoods together so the majority of listings falls in fewer (5-6 max) geographical areas. You would thus need to create a new categorical variabale neighbourhood_simplified and determine whether location is a predictor of price_4_nights
+
+From a Shanghai Native’s perspective, we can group the 16 neighborhoods of Shanghai into three major categories:
+
+1.	The central areas on the east bank of the Huangpu River, which includes Pudong.
+2.	The central areas on the west bank of the Huangpu River, which includes Huangpu, Xuhui, Jing’an, Changning, Yangpu, Putuo, Hongkou.
+3.	The suburban areas, which includes Minhang, Qingpu, Songjiang, Chongming, Jiading, Baoshan, Fengxian, Jinshan.
+
+
+```{r check_different_districts,warning=FALSE,message=FALSE}
+listings_filtered %>%
+  count(neighbourhood_cleansed) %>%
+  arrange(desc(n))  
+
+unique(listings_filtered$neighbourhood_cleansed)
+```
+
+```{r neighbourhood_simplified,warning=FALSE,message=FALSE}
+#Create variable neighbourhood_simplified
+listings_filtered$neighbourhood_simplified <- ifelse(listings_filtered$neighbourhood_cleansed == "Pudong",
+  "central_east",ifelse(listings_filtered$neighbourhood_cleansed == "Huangpu"|
+      listings_filtered$neighbourhood_cleansed == "Xuhui"|
+      listings_filtered$neighbourhood_cleansed == "Jing'an"|
+      listings_filtered$neighbourhood_cleansed == "Changning"|
+      listings_filtered$neighbourhood_cleansed == "Yangpu"|
+      listings_filtered$neighbourhood_cleansed == "Putuo"|
+      listings_filtered$neighbourhood_cleansed == "Hongkou",
+    "central_west", 'sub_urban'))
+unique(listings_filtered$neighbourhood_simplified)
+
+listings_filtered %>%
+  count(neighbourhood_simplified) %>%
+  arrange(desc(n))  
+listings_filtered <- listings_filtered %>% mutate(neighbourhood_simplified=as.factor(neighbourhood_simplified))
+```
+
+```{r further_analysis_4,warning=FALSE,message=FALSE}
+model6 <- lm(log_price_4_nights ~ prop_type_simplified + room_type + number_of_reviews + 
+               review_scores_rating + bathrooms + bedrooms + beds + accommodates 
+             + host_is_superhost + neighbourhood_simplified,data=listings_filtered)
+msummary(model6)
+```
+
+
+> Analysis on model 6
+
+After controlling for other variables, the area of the listing has some significant positive effect. 
+Our baseline type is the central east and the other 2 areas have significant impact on 4 nights price for 2 with very low p-values. 
+The coefficient is 0.1366 for central west, which means controlling other variables, being in the central west areas will make the 4 nights price for 2 more expensive by 14.59%. The coefficient is -0.1414 for suburban, which means controlling other variables, being in the suburban areas will make the 4 nights price for 2 cheaper by -13.19%.
+
+This result is in accordance with our analysis in the mapping section. Central west areas of Shanghai attract more tourists and give a rise to the price, while suburban areas have lower Airbnb prices in general.
+Adjusted R-squared also increases moderately compared to model 5 from 0.506 to 0.524. 
+
+
+>What is the effect of cancellation_policy on price_4_nights, after we control for other variables?
+
+```{r further_analysis_5,warning=FALSE,message=FALSE}
+listings_filtered <- listings_filtered %>% mutate(cancellation_policy=as.factor(cancellation_policy))
+unique(listings_filtered$cancellation_policy)
+model7 <- lm(log_price_4_nights ~ prop_type_simplified + room_type + number_of_reviews + 
+               review_scores_rating + bathrooms + bedrooms + beds + accommodates 
+             + host_is_superhost + neighbourhood_simplified+cancellation_policy,data=listings_filtered)
+msummary(model7)
+```
+
+> Analysis on model 7
+
+After controlling for other variables, cancellation policy has some significant positive effect. 
+Our baseline policy is flexible cancellation policy and the other 2 more strict policies have significant impact on 4 nights price for 2 with very low p-values. 
+The coefficient is 0.0397 for moderate, which means controlling other variables, a moderate cancellation policy will make the 4 nights price for 2 more expensive by 4.05%. The coefficient is 0.0914 for suburban, which means controlling other variables, a strict 14 with grace period will make the 4 nights price for 2 cheaper by -9.57%.
+This result seems confusing at first glance, as more strict cancellation policies benefit landlords and one might expect tourists to demand price cut because of the strict policy. But we might also suggest that when other conditions are the same, more strict cancellation policy tend to imply the listing is more high-end, which may increase the tourists’ willingness to pay. Anyway, adjusted R-squared of model 7 barely rises compared with model 6, which may imply cancellation policy of the listing is not such an important variable.
+
+
+# Diagnostics
+
+> Check the residuals, using autoplot(model_x)
+
+We are going to check residuals with model7,as it is our best performing model.
+
+```{r check_residuals,warning=FALSE,message=FALSE}
+#install.packages('ggfortify')
+library(ggfortify)
+ggplot2::autoplot(lm(log_price_4_nights ~ prop_type_simplified + room_type + number_of_reviews + 
+               review_scores_rating + bathrooms + bedrooms + beds + accommodates 
+             + host_is_superhost + factor(neighbourhood_simplified)+factor(cancellation_policy),data=listings_filtered),colour = 'dodgerblue3',
+         smooth.colour = 'black', smooth.linetype = 'dashed',
+         ad.colour = 'blue',
+         label.size = 2, label.n = 2, label.colour = 'blue')
+```
+
+> Conclusions about residuals
+
+1.Residuals VS Fitted: This is used to check linearity assumption. Our residuals seem to be random, with no clear pattern, and around Y=0, which is in accordance with linearity assumption.
+2.Normal Q-Q: This is used to check normality assumption. Our residuals seem to be to a large extent follow a straight line, which is in accordance with normality assumption.
+3.Scale-Location: This is used to check Equal Variance assumption. Our residuals seem to have no clear positive or negative trends across the fitted values, which is in accordance with Equal Variance assumption.
+4.Residuals VS. Leverage:This is used to check influential points. There seem to be 2 influential points in our data but we have manually checked them and believed they are normal listings. So we don't remove them from our dataset.
+
+> Calculate the Variance Inflation Factor (VIF) for your predictors and determine whether you have colinear variables.
+
+```{r vif,warning=FALSE,message=FALSE}
+#install.packages('car')
+library(car)
+car::vif(model7)
+```
+> VIF conclusions
+
+There are no VIF larger than 5 or 10 in model 7, and we believe our model is free from collinearity. 
+
+> Create a summary table, using huxtable that shows which models you worked on, which predictors are significant, the adjusted R squared, and the Residual Standard Error.
+
+```{r summary_table,warning=FALSE,message=FALSE}
+#install.packages("huxtable", dependencies = TRUE)
+library(huxtable)
+huxreg(model1, model2, model3,model4, model5, model6, model7,
+                 statistics = c('#observations' = 'nobs', 
+                                'R squared' = 'r.squared', 
+                                'Adj. R Squared' = 'adj.r.squared', 
+                                'Residual SE' = 'sigma'), 
+                 bold_signif = 0.05, 
+                 stars = NULL
+) %>% 
+  set_caption('Comparison of models')
+```
+> We can see the Model 7 is clearly our best model for prediction.
+
+# Prediction the cost for 4 nights
+
+> Suppose 2 of us are planning to visit Shanghai over reading week, and we want to stay in an Airbnb. Find Airbnb’s that are apartment with a private room, have at least 10 reviews, and an average rating of at least 90. Use our best model to predict the total cost to stay at this Airbnb for 4 nights. Include the appropriate 95% interval with our prediction. Report the point prediction and interval in terms of price_4_nights.
+
+```{r final_prediction,warning=FALSE,message=FALSE}
+listing_for_prediction <- listings_filtered %>% 
+  filter(number_of_reviews >= 10) %>% 
+  filter(review_scores_rating >=90) %>% 
+  filter(prop_type_simplified == "Apartment") %>% 
+  filter(room_type == "Private room")
+
+ln_price_4_nights_prediction <- as.data.frame(predict(model7, listing_for_prediction, interval="prediction",level=0.95))
+price_4_nights_prediction <- data.frame(lower_limit = exp(ln_price_4_nights_prediction$lwr),prediction = exp(ln_price_4_nights_prediction$fit),upper_limit = exp(ln_price_4_nights_prediction$up))
+price_4_nights_prediction$neighbourhood <-  listing_for_prediction$neighbourhood_cleansed
+price_4_nights_prediction$listing_url <-  listing_for_prediction$listing_url
+price_4_nights_prediction
+
+```
+
+Based on the criteria we filter the data and get a final target list of possible options on Airbnb, then we use our best model, model 7, to predict the total cost for 2 people to stay at each property for 4 nights and the 95% confidence interval. We also link the neighbourhood and listing link to each listing so you can check these ideal listings on Airbnb.
+
+```{r final_prediction_median,warning=FALSE,message=FALSE}
+
+price_4_nights_median <- data.frame(median_lower_limit = median(price_4_nights_prediction$lower_limit),prediction_median = median(price_4_nights_prediction$prediction),upper_limit_median = median(price_4_nights_prediction$upper_limit))
+price_4_nights_median
+```
+
+
+Asoyu can see the median price for a couple to stay in a nice private room in an apartment in Shanghai for 4 days is RMB 982, i.e., $146.5. A reasonable price, isn’t it? So welcome to Shanghai when the covid-19 pass! Enjoy your journey!
+
