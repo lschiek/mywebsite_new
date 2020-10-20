@@ -65,7 +65,7 @@ graph1_data &lt;- tidy_GDP_data %&gt;%
 <p>After this is done, let´s have a look at the specific GDP components for Germany, India and the United States.</p>
 <pre class="r"><code>ggplot(data=graph1_data, aes(x=Year, y= USD_bn,group=ShortName))+
   
-#plot the lines by indicator names
+# plot the lines by indicator names
   geom_line(aes(color=ShortName))+
   facet_wrap(~Country)+
   scale_x_discrete(breaks = seq(1970,2010,by=10))+
